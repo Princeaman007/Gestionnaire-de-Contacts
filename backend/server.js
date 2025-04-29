@@ -12,7 +12,7 @@ const app = express();
 
 // 🎯 Correction CORS ici
 const allowedOrigins = [
-  'https://gestionnaire-de-contacts.vercel.app',
+  'https://gestionnaire-de-contacts.vercel.app/',
   'http://localhost:3000' // Facultatif pour local dev
 ];
 
