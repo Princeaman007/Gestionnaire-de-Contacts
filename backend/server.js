@@ -42,19 +42,24 @@ app.get('/', (req, res) => {
 });
 
 // Connexion à la base de données avec gestion d'erreur
-const connectDB = require('./config/db');
 let dbConnected = false;
+let connectDB;
 
-// Tentative de connexion à la DB mais sans bloquer le démarrage du serveur
-connectDB()
-  .then(() => {
-    console.log('✅ MongoDB connecté avec succès');
-    dbConnected = true;
-  })
-  .catch(err => {
-    console.error('❌ Erreur de connexion MongoDB:', err.message);
-    // Le serveur continuera à fonctionner même si la DB n'est pas connectée
-  });
+try {
+  connectDB = require('./config/db');
+  // Tentative de connexion à la DB mais sans bloquer le démarrage du serveur
+  connectDB()
+    .then(() => {
+      console.log('✅ MongoDB connecté avec succès');
+      dbConnected = true;
+    })
+    .catch(err => {
+      console.error('❌ Erreur de connexion MongoDB:', err.message);
+      // Le serveur continuera à fonctionner même si la DB n'est pas connectée
+    });
+} catch (err) {
+  console.error('❌ Erreur lors du chargement du module de connexion DB:', err.message);
+}
 
 // Middleware pour vérifier la connexion DB avant d'accéder aux routes API
 const checkDbConnection = (req, res, next) => {
@@ -67,10 +72,27 @@ const checkDbConnection = (req, res, next) => {
   next();
 };
 
-// 📦 Chargement des routes avec vérification DB
-app.use('/api/auth', checkDbConnection, require('./routes/auth'));
-app.use('/api/contacts', checkDbConnection, require('./routes/contacts'));
-app.use('/api/users', checkDbConnection, require('./routes/users'));
+// Gérer les routes avec une approche sécurisée qui évite les erreurs de path-to-regexp
+try {
+  // 📦 Chargement des routes avec vérification DB
+  const authRoutes = require('./routes/auth');
+  const contactsRoutes = require('./routes/contacts');
+  const usersRoutes = require('./routes/users');
+  
+  app.use('/api/auth', checkDbConnection, authRoutes);
+  app.use('/api/contacts', checkDbConnection, contactsRoutes);
+  app.use('/api/users', checkDbConnection, usersRoutes);
+} catch (err) {
+  console.error('❌ Erreur lors du chargement des routes:', err.message);
+  
+  // Route de fallback pour les routes API en cas d'erreur
+  app.use('/api/:any', (req, res) => {
+    res.status(500).json({
+      success: false,
+      error: 'Le serveur est en cours de maintenance. Veuillez réessayer plus tard.'
+    });
+  });
+}
 
 // 🛡 Gestion d'erreurs global
 app.use((err, req, res, next) => {
@@ -82,7 +104,7 @@ app.use((err, req, res, next) => {
 });
 
 // Démarrage du serveur
-const PORT = process.env.PORT || 3000; // Utiliser le port 3000 comme dans votre fly.toml
+const PORT = process.env.PORT || 3000;
 const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`📡 Serveur démarré sur le port ${PORT}`);
 });
