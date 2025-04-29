@@ -86,7 +86,8 @@ try {
   console.error('❌ Erreur lors du chargement des routes:', err.message);
   
   // Route de fallback pour les routes API en cas d'erreur
-  app.use('/api/:any', (req, res) => {
+  // CORRECTION : Utilisation correcte des paramètres de route
+  app.use('/api/*', (req, res) => {  // Utiliser * au lieu de :any
     res.status(500).json({
       success: false,
       error: 'Le serveur est en cours de maintenance. Veuillez réessayer plus tard.'
