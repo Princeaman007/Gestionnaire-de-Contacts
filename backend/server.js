@@ -36,6 +36,16 @@ app.use((err, req, res, next) => {
   });
 });
 
+app.get('/', (req, res) => {
+  res.send('Backend is up and running 🎉');
+});
+
+app.get('/health', (req, res) => {
+  res.send({ status: 'ok' });
+});
+
+
+
 
 const fs = require('fs');
 if (!fs.existsSync('./uploads')) {
