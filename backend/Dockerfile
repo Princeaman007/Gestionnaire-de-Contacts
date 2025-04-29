@@ -35,23 +35,10 @@ FROM base
 COPY --from=build /app /app
 
 # Créer le dossier uploads s'il n'existe pas déjà
-RUN mkdir -p /app/uploads && \
-    # Définir des permissions appropriées
-    chmod 755 /app/uploads
-
-# Vérifier que le script de démarrage existe
-RUN if [ -f "/app/server.js" ]; then \
-      echo "Using direct node command for better visibility in logs"; \
-      # Utiliser node directement plutôt que npm run start
-      CMD=("node" "server.js"); \
-    else \
-      echo "Using npm start"; \
-      CMD=("npm" "run" "start"); \
-    fi && \
-    echo "Startup command: ${CMD[*]}"
+RUN mkdir -p /app/uploads && chmod 755 /app/uploads
 
 # Expose l'application
 EXPOSE 3000
 
-# Démarrer avec node pour une meilleure visibilité des logs
+# Utiliser directement node pour une meilleure visibilité des logs
 CMD [ "node", "server.js" ]
