@@ -12,7 +12,8 @@ const app = express();
 
 // ✅ Middleware CORS sécurisé
 const allowedOrigins = [
-  'https://gestionnaire-de-contacts-e7w24q83b-amans-projects-a0105457.vercel.app'
+  'https://gestionnaire-de-contacts.vercel.app',
+  'http://localhost:3000' // pour les tests en local (facultatif)
 ];
 
 app.use(cors({
