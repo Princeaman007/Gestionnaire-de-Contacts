@@ -2,40 +2,41 @@ const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const connectDB = require('./config/db');
 
-
 dotenv.config();
-
 connectDB();
-
-// Routes
-const authRoutes = require('./routes/auth');
-const contactRoutes = require('./routes/contacts');
-const userRoutes = require('./routes/users');
 
 const app = express();
 
+// ✅ Middleware CORS sécurisé
+const allowedOrigins = [
+  'https://gestionnaire-de-contacts-e7w24q83b-amans-projects-a0105457.vercel.app'
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+}));
 
 app.use(express.json());
-app.use(cors());
 
-
+// ✅ Serveur d’images / uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// ✅ Routes API
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/contacts', require('./routes/contacts'));
+app.use('/api/users', require('./routes/users'));
 
-app.use('/api/auth', authRoutes);
-app.use('/api/contacts', contactRoutes);
-app.use('/api/users', userRoutes);
-
-
-app.use((err, req, res, next) => {
-  res.status(500).json({
-    success: false,
-    error: err.message
-  });
-});
-
+// ✅ Route de test simple
 app.get('/', (req, res) => {
   res.send('Backend is up and running 🎉');
 });
@@ -44,17 +45,20 @@ app.get('/health', (req, res) => {
   res.send({ status: 'ok' });
 });
 
+// ✅ Gestion des erreurs
+app.use((err, req, res, next) => {
+  res.status(500).json({
+    success: false,
+    error: err.message,
+  });
+});
 
-
-
-const fs = require('fs');
+// ✅ Création dossier uploads si non existant
 if (!fs.existsSync('./uploads')) {
   fs.mkdirSync('./uploads');
 }
 
 const PORT = process.env.PORT || 5000;
-
 app.listen(PORT, () => {
   console.log(`Serveur démarré sur le port ${PORT}`);
 });
-
