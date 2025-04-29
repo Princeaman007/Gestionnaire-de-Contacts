@@ -10,13 +10,13 @@ connectDB();
 
 const app = express();
 
-// ✅ Middleware CORS sécurisé
+// 🎯 Correction CORS ici
 const allowedOrigins = [
   'https://gestionnaire-de-contacts.vercel.app',
-  'http://localhost:3000' // pour les tests en local (facultatif)
+  'http://localhost:3000' // Facultatif pour local dev
 ];
 
-app.use(cors({
+const corsOptions = {
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
@@ -25,19 +25,18 @@ app.use(cors({
     }
   },
   credentials: true,
-}));
+};
 
+app.use(cors(corsOptions));
 app.use(express.json());
 
-// ✅ Serveur d’images / uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// ✅ Routes API
+// 📦 Chargement des routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/contacts', require('./routes/contacts'));
 app.use('/api/users', require('./routes/users'));
 
-// ✅ Route de test simple
 app.get('/', (req, res) => {
   res.send('Backend is up and running 🎉');
 });
@@ -46,7 +45,7 @@ app.get('/health', (req, res) => {
   res.send({ status: 'ok' });
 });
 
-// ✅ Gestion des erreurs
+// 🛡 Gestion d'erreurs global
 app.use((err, req, res, next) => {
   res.status(500).json({
     success: false,
@@ -54,7 +53,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-// ✅ Création dossier uploads si non existant
+// 📂 Créer dossier uploads si nécessaire
 if (!fs.existsSync('./uploads')) {
   fs.mkdirSync('./uploads');
 }
