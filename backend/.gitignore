@@ -1,0 +1,42 @@
+# Dépendances
+/node_modules
+
+# Fichiers environnements
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Fichiers uploads (sauf placeholder)
+/uploads/*
+!/uploads/default-avatar.png
+
+# Données
+/data
+
+# Coverage
+/coverage
+
+# Système d'exploitation
+.DS_Store
+Thumbs.db
+
+# Éditeurs/IDE
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+
+# Temp
+.temp
+.tmp
