@@ -29,7 +29,19 @@ const ContactForm = () => {
 
   useEffect(() => {
     if (current !== null) {
-      setContact(current);
+      // S'assurer que current a toujours une propriété address avec une structure complète
+      const safeContact = {
+        ...current,
+        address: current.address || {
+          street: '',
+          city: '',
+          zipCode: '',
+          country: ''
+        }
+      };
+      
+      setContact(safeContact);
+      
       if (current.address) {
         setShowAddressFields(true);
       }
@@ -56,7 +68,8 @@ const ContactForm = () => {
     }
   }, [current, error, contactContext]);
 
-  const { name, email, phone, type, notes, address } = contact;
+  // Utiliser l'opérateur de destructuration avec valeur par défaut
+  const { name, email, phone, type, notes, address = {} } = contact;
 
   const onChange = (e) => {
     const { name, value } = e.target;
@@ -66,7 +79,7 @@ const ContactForm = () => {
       setContact({
         ...contact,
         address: {
-          ...contact.address,
+          ...contact.address || {}, // S'assurer que address existe
           [addressField]: value
         }
       });
@@ -228,7 +241,7 @@ const ContactForm = () => {
                     <Form.Control
                       type="text"
                       name="address.street"
-                      value={address.street}
+                      value={address?.street || ''}
                       onChange={onChange}
                       placeholder="Rue"
                     />
@@ -240,7 +253,7 @@ const ContactForm = () => {
                     <Form.Control
                       type="text"
                       name="address.city"
-                      value={address.city}
+                      value={address?.city || ''}
                       onChange={onChange}
                       placeholder="Ville"
                     />
@@ -254,7 +267,7 @@ const ContactForm = () => {
                     <Form.Control
                       type="text"
                       name="address.zipCode"
-                      value={address.zipCode}
+                      value={address?.zipCode || ''}
                       onChange={onChange}
                       placeholder="Code postal"
                     />
@@ -266,7 +279,7 @@ const ContactForm = () => {
                     <Form.Control
                       type="text"
                       name="address.country"
-                      value={address.country}
+                      value={address?.country || ''}
                       onChange={onChange}
                       placeholder="Pays"
                     />
@@ -281,7 +294,7 @@ const ContactForm = () => {
             <Form.Control
               as="textarea"
               name="notes"
-              value={notes}
+              value={notes || ''}
               onChange={onChange}
               placeholder="Notes sur le contact"
               rows={3}
