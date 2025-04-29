@@ -1,4 +1,4 @@
-# fly.toml app configuration file generated for backend-thrumming-fire-8751 on 2025-04-29T21:00:04+02:00
+# fly.toml app configuration file pour backend-thrumming-fire-8751
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
@@ -7,16 +7,33 @@ app = 'backend-thrumming-fire-8751'
 primary_region = 'fra'
 
 [build]
+  # Nous gardons votre configuration build existante
+
+[env]
+  PORT = "3000"  # Ajusté pour correspondre à votre internal_port
+  NODE_ENV = "production"
 
 [http_service]
-  internal_port = 3000
+  internal_port = 3000  # Maintenu de votre configuration
   force_https = true
-  auto_stop_machines = 'stop'
+  auto_stop_machines = 'stop'  # Maintenu de votre configuration
   auto_start_machines = true
-  min_machines_running = 0
+  min_machines_running = 0  # Maintenu de votre configuration
   processes = ['app']
 
+# Ajout des vérifications de santé
+[checks]
+  [checks.health]
+    port = 3000  # Correspondant à votre internal_port
+    type = "http"
+    interval = "15s"
+    timeout = "2s"
+    grace_period = "30s"
+    method = "get"
+    path = "/health"
+    protocol = "http"
+
 [[vm]]
-  memory = '1gb'
+  memory = '1gb'  # Maintenu de votre configuration
   cpu_kind = 'shared'
   cpus = 1
