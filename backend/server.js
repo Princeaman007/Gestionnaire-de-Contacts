@@ -9,7 +9,7 @@ dotenv.config();
 
 const app = express();
 
-// 🎯 Configuration CORS simplifiée et robuste
+
 app.use(cors({
   origin: ['https://gestionnaire-de-contacts.vercel.app', 'http://localhost:3000'],
   credentials: true,
@@ -17,8 +17,6 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
-// Gérer explicitement les requêtes preflight
-app.options('*', cors());
 
 app.use(express.json());
 
@@ -64,9 +62,9 @@ try {
 // Middleware pour vérifier la connexion DB avant d'accéder aux routes API
 const checkDbConnection = (req, res, next) => {
   if (!dbConnected) {
-    return res.status(503).json({ 
-      success: false, 
-      error: 'La base de données n\'est pas disponible actuellement' 
+    return res.status(503).json({
+      success: false,
+      error: 'La base de données n\'est pas disponible actuellement'
     });
   }
   next();
@@ -78,13 +76,13 @@ try {
   const authRoutes = require('./routes/auth');
   const contactsRoutes = require('./routes/contacts');
   const usersRoutes = require('./routes/users');
-  
+
   app.use('/api/auth', checkDbConnection, authRoutes);
   app.use('/api/contacts', checkDbConnection, contactsRoutes);
   app.use('/api/users', checkDbConnection, usersRoutes);
 } catch (err) {
   console.error('❌ Erreur lors du chargement des routes:', err.message);
-  
+
   // Route de fallback pour les routes API en cas d'erreur - VERSION CORRIGÉE
   app.use('/api', (req, res) => {
     res.status(500).json({
