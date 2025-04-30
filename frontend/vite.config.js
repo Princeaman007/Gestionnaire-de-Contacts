@@ -5,11 +5,11 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    host: '0.0.0.0', // Permet d'accéder au serveur depuis le réseau local (utile pour tests sur mobile ou VM)
+    host: '0.0.0.0', 
     port: 3000,
     proxy: {
       '/api': {
-        target: 'http://localhost:5000', // Utilisation de localhost en local
+        target: 'http://localhost:5000', 
         changeOrigin: true,
       },
       '/uploads': {
