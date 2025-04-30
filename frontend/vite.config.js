@@ -5,31 +5,31 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    host: '0.0.0.0', // Essentiel pour que Vite soit accessible depuis l'extérieur du conteneur
+    host: '0.0.0.0', // Permet d'accéder au serveur depuis le réseau local (utile pour tests sur mobile ou VM)
     port: 3000,
     proxy: {
       '/api': {
-        target: 'http://backend:5000', // Utiliser le nom du service Docker au lieu de localhost
+        target: 'http://localhost:5000', // Utilisation de localhost en local
         changeOrigin: true,
       },
       '/uploads': {
-        target: 'http://backend:5000', // Ajouter un proxy pour les uploads
+        target: 'http://localhost:5000',
         changeOrigin: true,
-      }
+      },
     },
   },
   preview: {
-    host: '0.0.0.0', // Également nécessaire pour le mode preview
+    host: '0.0.0.0',
     port: 3000,
     proxy: {
       '/api': {
-        target: 'http://backend:5000',
+        target: 'http://localhost:5000',
         changeOrigin: true,
       },
       '/uploads': {
-        target: 'http://backend:5000',
+        target: 'http://localhost:5000',
         changeOrigin: true,
-      }
+      },
     },
   },
 })
