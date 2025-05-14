@@ -14,7 +14,7 @@ const ContactList = () => {
 
   useEffect(() => {
     getContacts();
-  
+    
   }, []);
 
   if (loading) {

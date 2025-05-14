@@ -1,132 +1,113 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Form, Button, Card, Row, Col, Alert } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faEdit, faUserCircle } from '@fortawesome/free-solid-svg-icons';
+import { useForm } from 'react-hook-form';
 import ContactContext from '../../contexts/contact/ContactContext';
 
 const ContactForm = () => {
   const contactContext = useContext(ContactContext);
   const { addContact, updateContact, current, clearCurrent, error } = contactContext;
 
-  const [contact, setContact] = useState({
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState('');
+  const [alertMsg, setAlertMsg] = useState('');
+  const [showAddressFields, setShowAddressFields] = useState(false);
+
+  const {
+  register,
+  handleSubmit,
+  reset,
+  formState: { errors }
+} = useForm({
+  defaultValues: {
     name: '',
     email: '',
     phone: '',
     type: 'personnel',
     notes: '',
-    address: {
-      street: '',
-      city: '',
-      zipCode: '',
-      country: ''
-    },
-    avatar: null
-  });
-  
-  const [previewUrl, setPreviewUrl] = useState('');
-  const [alertMsg, setAlertMsg] = useState('');
-  const [showAddressFields, setShowAddressFields] = useState(false);
+    'address.street': '',
+    'address.city': '',
+    'address.zipCode': '',
+    'address.country': ''
+  }
+});
+
 
   useEffect(() => {
-    if (current !== null) {
-    
-      const safeContact = {
-        ...current,
-        address: current.address || {
-          street: '',
-          city: '',
-          zipCode: '',
-          country: ''
-        }
-      };
+    if (current) {
       
-      setContact(safeContact);
-      
-      if (current.address) {
+      const flatAddress = current.address || {};
+      reset({
+        name: current.name || '',
+        email: current.email || '',
+        phone: current.phone || '',
+        type: current.type || 'personnel',
+        notes: current.notes || '',
+        'address.street': flatAddress.street || '',
+        'address.city': flatAddress.city || '',
+        'address.zipCode': flatAddress.zipCode || '',
+        'address.country': flatAddress.country || ''
+      });
+
+      if (flatAddress.street || flatAddress.city || flatAddress.zipCode || flatAddress.country) {
         setShowAddressFields(true);
       }
+
+      if (current.avatar) {
+        setPreviewUrl(`/uploads/${current.avatar}`);
+      }
     } else {
-      setContact({
-        name: '',
-        email: '',
-        phone: '',
-        type: 'personnel',
-        notes: '',
-        address: {
-          street: '',
-          city: '',
-          zipCode: '',
-          country: ''
-        },
-        avatar: null
-      });
+      reset();
       setPreviewUrl('');
     }
-    
+
     if (error) {
       setAlertMsg(error);
     }
-  }, [current, error, contactContext]);
-
-  // Utiliser l'opérateur de destructuration avec valeur par défaut
-  const { name, email, phone, type, notes, address = {} } = contact;
-
-  const onChange = (e) => {
-    const { name, value } = e.target;
-    
-    if (name.startsWith('address.')) {
-      const addressField = name.split('.')[1];
-      setContact({
-        ...contact,
-        address: {
-          ...contact.address || {}, // S'assurer que address existe
-          [addressField]: value
-        }
-      });
-    } else {
-      setContact({ ...contact, [name]: value });
-    }
-  };
+  }, [current, error, reset]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setContact({ ...contact, avatar: file });
-      
-      // Créer une URL pour la prévisualisation
-      const fileReader = new FileReader();
-      fileReader.onload = () => {
-        setPreviewUrl(fileReader.result);
-      };
-      fileReader.readAsDataURL(file);
+      setAvatarFile(file);
+      const reader = new FileReader();
+      reader.onload = () => setPreviewUrl(reader.result);
+      reader.readAsDataURL(file);
     }
   };
 
-  const onSubmit = (e) => {
-    e.preventDefault();
-    
-    if (!name || !email || !phone) {
+  const onSubmit = async (data) => {
+    const contactData = {
+      ...data,
+      avatar: avatarFile,
+      address: {
+        street: data['address.street'],
+        city: data['address.city'],
+        zipCode: data['address.zipCode'],
+        country: data['address.country']
+      }
+    };
+
+    if (!data.name || !data.email || !data.phone) {
       setAlertMsg('Veuillez remplir les champs obligatoires');
       return;
     }
-    
-    if (current === null) {
-      addContact(contact).then(() => {
-        clearAll();
-      }).catch(err => {
-        setAlertMsg(err.message || 'Erreur lors de l\'ajout du contact');
-      });
-    } else {
-      updateContact(contact).then(() => {
-        clearAll();
-      }).catch(err => {
-        setAlertMsg(err.message || 'Erreur lors de la mise à jour du contact');
-      });
-    }
-  };
 
-  const clearAll = () => {
-    clearCurrent();
+    try {
+      if (current === null) {
+        await addContact(contactData);
+      } else {
+        await updateContact({ ...current, ...contactData });
+      }
+      clearCurrent();
+      reset();
+      setAvatarFile(null);
+      setPreviewUrl('');
+      setShowAddressFields(false);
+    } catch (err) {
+      setAlertMsg(err.message || "Erreur lors de l'enregistrement du contact");
+    }
   };
 
   return (
@@ -136,67 +117,83 @@ const ContactForm = () => {
           <FontAwesomeIcon icon={current ? faEdit : faPlus} className="me-2" />
           {current ? 'Modifier le contact' : 'Ajouter un contact'}
         </h3>
-        
+
         {alertMsg && (
           <Alert variant="danger" onClose={() => setAlertMsg('')} dismissible>
             {alertMsg}
           </Alert>
         )}
-        
-        <Form onSubmit={onSubmit}>
+
+        <Form onSubmit={handleSubmit(onSubmit)}>
           <Row>
-            <Col md={current && current.avatar ? 9 : 12}>
+            <Col md={current?.avatar || previewUrl ? 9 : 12}>
+              {/* Nom */}
               <Form.Group className="mb-3" controlId="formName">
                 <Form.Label>Nom*</Form.Label>
                 <Form.Control
                   type="text"
-                  name="name"
-                  value={name}
-                  onChange={onChange}
                   placeholder="Nom du contact"
-                  required
+                  isInvalid={!!errors.name}
+                  {...register('name', { required: 'Nom requis' })}
                 />
+                <Form.Control.Feedback type="invalid">
+                  {errors.name?.message}
+                </Form.Control.Feedback>
               </Form.Group>
-              
+
+              {/* Email */}
               <Form.Group className="mb-3" controlId="formEmail">
                 <Form.Label>Email*</Form.Label>
                 <Form.Control
                   type="email"
-                  name="email"
-                  value={email}
-                  onChange={onChange}
                   placeholder="Email du contact"
-                  required
+                  isInvalid={!!errors.email}
+                  {...register('email', {
+                    required: 'Email requis',
+                    pattern: {
+                      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                      message: 'Email invalide'
+                    }
+                  })}
                 />
+                <Form.Control.Feedback type="invalid">
+                  {errors.email?.message}
+                </Form.Control.Feedback>
               </Form.Group>
-              
+
+              {/* Téléphone */}
               <Form.Group className="mb-3" controlId="formPhone">
                 <Form.Label>Téléphone*</Form.Label>
                 <Form.Control
                   type="text"
-                  name="phone"
-                  value={phone}
-                  onChange={onChange}
                   placeholder="Téléphone du contact"
-                  required
+                  isInvalid={!!errors.phone}
+                  {...register('phone', { required: 'Téléphone requis' })}
                 />
+                <Form.Control.Feedback type="invalid">
+                  {errors.phone?.message}
+                </Form.Control.Feedback>
               </Form.Group>
             </Col>
-            
-            {(current && current.avatar || previewUrl) && (
+
+            {(current?.avatar || previewUrl) && (
               <Col md={3} className="text-center">
                 <div className="mt-4">
                   <img
-                    src={previewUrl || `/uploads/${current.avatar}`}
+                    src={previewUrl}
                     alt="Avatar"
                     className="img-fluid rounded-circle"
                     style={{ width: '150px', height: '150px', objectFit: 'cover' }}
+                    onError={(e) => {
+                      e.target.src = 'https://via.placeholder.com/150';
+                    }}
                   />
                 </div>
               </Col>
             )}
           </Row>
-          
+
+          {/* Type */}
           <Form.Group className="mb-3" controlId="formType">
             <Form.Label>Type de contact</Form.Label>
             <div>
@@ -204,22 +201,19 @@ const ContactForm = () => {
                 inline
                 type="radio"
                 label="Personnel"
-                name="type"
                 value="personnel"
-                checked={type === 'personnel'}
-                onChange={onChange}
+                {...register('type')}
               />
               <Form.Check
                 inline
                 type="radio"
                 label="Professionnel"
-                name="type"
                 value="professionnel"
-                checked={type === 'professionnel'}
-                onChange={onChange}
+                {...register('type')}
               />
             </div>
           </Form.Group>
+
           
           <div className="mb-3">
             <Button
@@ -228,10 +222,11 @@ const ContactForm = () => {
               onClick={() => setShowAddressFields(!showAddressFields)}
               className="btn-sm"
             >
-              {showAddressFields ? 'Masquer l\'adresse' : 'Ajouter une adresse'}
+              {showAddressFields ? "Masquer l'adresse" : 'Ajouter une adresse'}
             </Button>
           </div>
-          
+
+          {/* Champs d'adresse */}
           {showAddressFields && (
             <div className="address-fields mb-3">
               <Row>
@@ -240,10 +235,8 @@ const ContactForm = () => {
                     <Form.Label>Rue</Form.Label>
                     <Form.Control
                       type="text"
-                      name="address.street"
-                      value={address?.street || ''}
-                      onChange={onChange}
                       placeholder="Rue"
+                      {...register('address.street')}
                     />
                   </Form.Group>
                 </Col>
@@ -252,10 +245,8 @@ const ContactForm = () => {
                     <Form.Label>Ville</Form.Label>
                     <Form.Control
                       type="text"
-                      name="address.city"
-                      value={address?.city || ''}
-                      onChange={onChange}
                       placeholder="Ville"
+                      {...register('address.city')}
                     />
                   </Form.Group>
                 </Col>
@@ -266,10 +257,8 @@ const ContactForm = () => {
                     <Form.Label>Code postal</Form.Label>
                     <Form.Control
                       type="text"
-                      name="address.zipCode"
-                      value={address?.zipCode || ''}
-                      onChange={onChange}
                       placeholder="Code postal"
+                      {...register('address.zipCode')}
                     />
                   </Form.Group>
                 </Col>
@@ -278,50 +267,45 @@ const ContactForm = () => {
                     <Form.Label>Pays</Form.Label>
                     <Form.Control
                       type="text"
-                      name="address.country"
-                      value={address?.country || ''}
-                      onChange={onChange}
                       placeholder="Pays"
+                      {...register('address.country')}
                     />
                   </Form.Group>
                 </Col>
               </Row>
             </div>
           )}
-          
+
+          {/* Notes */}
           <Form.Group className="mb-3" controlId="formNotes">
             <Form.Label>Notes</Form.Label>
             <Form.Control
               as="textarea"
-              name="notes"
-              value={notes || ''}
-              onChange={onChange}
               placeholder="Notes sur le contact"
               rows={3}
+              {...register('notes')}
             />
           </Form.Group>
-          
+
+          {/* Avatar */}
           <Form.Group className="mb-3" controlId="formAvatar">
             <Form.Label>
               <FontAwesomeIcon icon={faUserCircle} className="me-1" />
               Avatar
             </Form.Label>
-            <Form.Control
-              type="file"
-              onChange={handleFileChange}
-              accept="image/*"
-            />
+            <Form.Control type="file" accept="image/*" onChange={handleFileChange} />
             <Form.Text className="text-muted">
-              Choisissez une image pour l'avatar du contact (JPG, PNG, GIF).
+              Choisissez une image pour l'avatar du contact.
             </Form.Text>
           </Form.Group>
-          
+
+          {/* Actions */}
           <div className="d-flex justify-content-between">
             <Button variant="primary" type="submit">
               {current ? 'Mettre à jour' : 'Ajouter'}
             </Button>
             {current && (
-              <Button variant="light" onClick={clearAll}>
+              <Button variant="light" onClick={clearCurrent}>
                 Annuler
               </Button>
             )}

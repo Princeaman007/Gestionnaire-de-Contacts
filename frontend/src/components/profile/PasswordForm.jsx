@@ -1,68 +1,53 @@
-import React, { useState, useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { Form, Button, Card, Alert } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLock } from '@fortawesome/free-solid-svg-icons';
 import AuthContext from '../../contexts/auth/AuthContext';
+import { useForm } from 'react-hook-form';
 
 const PasswordForm = () => {
   const authContext = useContext(AuthContext);
   const { updatePassword } = authContext;
-  
-  const [formData, setFormData] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: ''
-  });
-  
+
   const [alertMsg, setAlertMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
-  
-  const { currentPassword, newPassword, confirmPassword } = formData;
-  
-  const onChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-  
-  const onSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      setAlertMsg('Veuillez remplir tous les champs');
-      setSuccessMsg('');
-      return;
-    }
-    
+
+  const {
+    register,
+    handleSubmit,
+    setError,
+    reset,
+    formState: { errors }
+  } = useForm();
+
+  const onSubmit = async (data) => {
+    const { currentPassword, newPassword, confirmPassword } = data;
+
     if (newPassword !== confirmPassword) {
-      setAlertMsg('Les nouveaux mots de passe ne correspondent pas');
+      setError('confirmPassword', {
+        type: 'manual',
+        message: 'Les mots de passe ne correspondent pas'
+      });
+      setAlertMsg('');
       setSuccessMsg('');
       return;
     }
-    
-    if (newPassword.length < 6) {
-      setAlertMsg('Le nouveau mot de passe doit avoir au moins 6 caractères');
-      setSuccessMsg('');
-      return;
-    }
-    
+
     try {
       await updatePassword({
         currentPassword,
         newPassword
       });
-      
+
       setSuccessMsg('Mot de passe mis à jour avec succès');
       setAlertMsg('');
-      setFormData({
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: ''
-      });
+      reset();
     } catch (err) {
       setAlertMsg(err.message || 'Erreur lors de la mise à jour du mot de passe');
       setSuccessMsg('');
     }
   };
-  
+
   return (
     <Card className="shadow-sm">
       <Card.Body>
@@ -70,58 +55,76 @@ const PasswordForm = () => {
           <FontAwesomeIcon icon={faLock} className="me-2" />
           Changer de mot de passe
         </h3>
-        
+
         {alertMsg && (
           <Alert variant="danger" onClose={() => setAlertMsg('')} dismissible>
             {alertMsg}
           </Alert>
         )}
-        
+
         {successMsg && (
           <Alert variant="success" onClose={() => setSuccessMsg('')} dismissible>
             {successMsg}
           </Alert>
         )}
-        
-        <Form onSubmit={onSubmit}>
+
+        <Form onSubmit={handleSubmit(onSubmit)}>
+          {/* Mot de passe actuel */}
           <Form.Group className="mb-3" controlId="formCurrentPassword">
             <Form.Label>Mot de passe actuel*</Form.Label>
             <Form.Control
               type="password"
-              name="currentPassword"
-              value={currentPassword}
-              onChange={onChange}
               placeholder="Votre mot de passe actuel"
-              required
+              isInvalid={!!errors.currentPassword}
+              {...register('currentPassword', {
+                required: 'Mot de passe actuel requis'
+              })}
             />
+            <Form.Control.Feedback type="invalid">
+              {errors.currentPassword?.message}
+            </Form.Control.Feedback>
           </Form.Group>
-          
+
+          {/* Nouveau mot de passe */}
           <Form.Group className="mb-3" controlId="formNewPassword">
             <Form.Label>Nouveau mot de passe*</Form.Label>
             <Form.Control
               type="password"
-              name="newPassword"
-              value={newPassword}
-              onChange={onChange}
               placeholder="Votre nouveau mot de passe"
-              minLength="6"
-              required
+              isInvalid={!!errors.newPassword}
+              {...register('newPassword', {
+                required: 'Nouveau mot de passe requis',
+                minLength: {
+                  value: 6,
+                  message: 'Au moins 6 caractères'
+                }
+              })}
             />
+            <Form.Control.Feedback type="invalid">
+              {errors.newPassword?.message}
+            </Form.Control.Feedback>
           </Form.Group>
-          
+
+          {/* Confirmation mot de passe */}
           <Form.Group className="mb-3" controlId="formConfirmPassword">
             <Form.Label>Confirmer le nouveau mot de passe*</Form.Label>
             <Form.Control
               type="password"
-              name="confirmPassword"
-              value={confirmPassword}
-              onChange={onChange}
               placeholder="Confirmez votre nouveau mot de passe"
-              minLength="6"
-              required
+              isInvalid={!!errors.confirmPassword}
+              {...register('confirmPassword', {
+                required: 'Veuillez confirmer le mot de passe',
+                minLength: {
+                  value: 6,
+                  message: 'Au moins 6 caractères'
+                }
+              })}
             />
+            <Form.Control.Feedback type="invalid">
+              {errors.confirmPassword?.message}
+            </Form.Control.Feedback>
           </Form.Group>
-          
+
           <Button variant="primary" type="submit">
             Mettre à jour le mot de passe
           </Button>
