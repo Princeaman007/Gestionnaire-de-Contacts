@@ -4,18 +4,20 @@ import { Container, Form, Button, Card, Row, Col, Alert } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserPlus } from '@fortawesome/free-solid-svg-icons';
 import AuthContext from '../../contexts/auth/AuthContext';
+import { useForm } from 'react-hook-form';
 
 const Register = () => {
   const authContext = useContext(AuthContext);
   const { register, error, clearErrors, isAuthenticated } = authContext;
   const navigate = useNavigate();
 
-  const [user, setUser] = useState({
-    name: '',
-    email: '',
-    password: '',
-    password2: ''
-  });
+ const {
+  register: registerField,
+  handleSubmit,
+  formState: { errors }
+} = useForm();
+
+
   const [alertMsg, setAlertMsg] = useState('');
 
   useEffect(() => {
@@ -29,27 +31,17 @@ const Register = () => {
     }
   }, [error, isAuthenticated, navigate, clearErrors]);
 
-  const { name, email, password, password2 } = user;
-
-  const onChange = (e) => {
-    setUser({ ...user, [e.target.name]: e.target.value });
-  };
-
-  const onSubmit = (e) => {
-    e.preventDefault();
-    if (name === '' || email === '' || password === '') {
-      setAlertMsg('Veuillez remplir tous les champs');
-    } else if (password !== password2) {
+  const onSubmit = (data) => {
+    if (data.password !== data.password2) {
       setAlertMsg('Les mots de passe ne correspondent pas');
-    } else if (password.length < 6) {
-      setAlertMsg('Le mot de passe doit avoir au moins 6 caractères');
-    } else {
-      register({
-        name,
-        email,
-        password
-      });
+      return;
     }
+
+    register({
+      name: data.name,
+      email: data.email,
+      password: data.password
+    });
   };
 
   return (
@@ -62,72 +54,98 @@ const Register = () => {
                 <FontAwesomeIcon icon={faUserPlus} className="me-2" />
                 Inscription
               </h2>
-              
+
               {alertMsg && (
                 <Alert variant="danger" onClose={() => setAlertMsg('')} dismissible>
                   {alertMsg}
                 </Alert>
               )}
-              
-              <Form onSubmit={onSubmit}>
+
+              <Form onSubmit={handleSubmit(onSubmit)}>
+                {/* Nom */}
                 <Form.Group className="mb-3" controlId="formName">
                   <Form.Label>Nom</Form.Label>
                   <Form.Control
                     type="text"
-                    name="name"
-                    value={name}
-                    onChange={onChange}
                     placeholder="Entrez votre nom"
-                    required
+                    isInvalid={!!errors.name}
+                    {...registerField('name', {
+                      required: 'Le nom est requis'
+                    })}
                   />
+                  <Form.Control.Feedback type="invalid">
+                    {errors.name?.message}
+                  </Form.Control.Feedback>
                 </Form.Group>
 
+                {/* Email */}
                 <Form.Group className="mb-3" controlId="formEmail">
                   <Form.Label>Email</Form.Label>
                   <Form.Control
                     type="email"
-                    name="email"
-                    value={email}
-                    onChange={onChange}
                     placeholder="Entrez votre email"
-                    required
+                    isInvalid={!!errors.email}
+                    {...registerField('email', {
+                      required: 'L’email est requis',
+                      pattern: {
+                        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                        message: 'Email invalide'
+                      }
+                    })}
                   />
+                  <Form.Control.Feedback type="invalid">
+                    {errors.email?.message}
+                  </Form.Control.Feedback>
                 </Form.Group>
 
+                {/* Mot de passe */}
                 <Form.Group className="mb-3" controlId="formPassword">
                   <Form.Label>Mot de passe</Form.Label>
                   <Form.Control
                     type="password"
-                    name="password"
-                    value={password}
-                    onChange={onChange}
                     placeholder="Entrez votre mot de passe"
-                    minLength="6"
-                    required
+                    isInvalid={!!errors.password}
+                    {...registerField('password', {
+                      required: 'Le mot de passe est requis',
+                      minLength: {
+                        value: 6,
+                        message: 'Au moins 6 caractères'
+                      }
+                    })}
                   />
+                  <Form.Control.Feedback type="invalid">
+                    {errors.password?.message}
+                  </Form.Control.Feedback>
                 </Form.Group>
 
+                {/* Confirmation mot de passe */}
                 <Form.Group className="mb-3" controlId="formPassword2">
                   <Form.Label>Confirmer le mot de passe</Form.Label>
                   <Form.Control
                     type="password"
-                    name="password2"
-                    value={password2}
-                    onChange={onChange}
                     placeholder="Confirmez votre mot de passe"
-                    minLength="6"
-                    required
+                    isInvalid={!!errors.password2}
+                    {...registerField('password2', {
+                      required: 'Confirmation requise',
+                      minLength: {
+                        value: 6,
+                        message: 'Au moins 6 caractères'
+                      }
+                    })}
                   />
+                  <Form.Control.Feedback type="invalid">
+                    {errors.password2?.message}
+                  </Form.Control.Feedback>
                 </Form.Group>
 
                 <Button variant="primary" type="submit" className="w-100 mt-3">
                   S'inscrire
                 </Button>
               </Form>
-              
+
               <div className="text-center mt-3">
                 <p>
-                  Déjà un compte? <Link to="/login">Se connecter</Link>
+                  Déjà un compte ? <Link to="/login">Se connecter</Link>
                 </p>
               </div>
             </Card.Body>

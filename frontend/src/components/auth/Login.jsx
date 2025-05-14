@@ -1,19 +1,22 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Container, Form, Button, Card, Row, Col, Alert } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSignInAlt } from '@fortawesome/free-solid-svg-icons';
 import AuthContext from '../../contexts/auth/AuthContext';
+import { useForm } from 'react-hook-form';
 
 const Login = () => {
   const authContext = useContext(AuthContext);
   const { login, error, clearErrors, isAuthenticated } = authContext;
   const navigate = useNavigate();
 
-  const [user, setUser] = useState({
-    email: '',
-    password: ''
-  });
+  const {
+    register: registerField,
+    handleSubmit,
+    formState: { errors }
+  } = useForm();
+
   const [alertMsg, setAlertMsg] = useState('');
 
   useEffect(() => {
@@ -27,22 +30,11 @@ const Login = () => {
     }
   }, [error, isAuthenticated, navigate, clearErrors]);
 
-  const { email, password } = user;
-
-  const onChange = (e) => {
-    setUser({ ...user, [e.target.name]: e.target.value });
-  };
-
-  const onSubmit = (e) => {
-    e.preventDefault();
-    if (email === '' || password === '') {
-      setAlertMsg('Veuillez remplir tous les champs');
-    } else {
-      login({
-        email,
-        password
-      });
-    }
+  const onSubmit = (data) => {
+    login({
+      email: data.email,
+      password: data.password
+    });
   };
 
   return (
@@ -55,46 +47,58 @@ const Login = () => {
                 <FontAwesomeIcon icon={faSignInAlt} className="me-2" />
                 Connexion
               </h2>
-              
+
               {alertMsg && (
                 <Alert variant="danger" onClose={() => setAlertMsg('')} dismissible>
                   {alertMsg}
                 </Alert>
               )}
-              
-              <Form onSubmit={onSubmit}>
+
+              <Form onSubmit={handleSubmit(onSubmit)}>
+                {/* Email */}
                 <Form.Group className="mb-3" controlId="formEmail">
                   <Form.Label>Email</Form.Label>
                   <Form.Control
                     type="email"
-                    name="email"
-                    value={email}
-                    onChange={onChange}
                     placeholder="Entrez votre email"
-                    required
+                    isInvalid={!!errors.email}
+                    {...registerField('email', {
+                      required: 'L’email est requis',
+                      pattern: {
+                        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                        message: 'Format d’email invalide'
+                      }
+                    })}
                   />
+                  <Form.Control.Feedback type="invalid">
+                    {errors.email?.message}
+                  </Form.Control.Feedback>
                 </Form.Group>
 
+                {/* Mot de passe */}
                 <Form.Group className="mb-3" controlId="formPassword">
                   <Form.Label>Mot de passe</Form.Label>
                   <Form.Control
                     type="password"
-                    name="password"
-                    value={password}
-                    onChange={onChange}
                     placeholder="Entrez votre mot de passe"
-                    required
+                    isInvalid={!!errors.password}
+                    {...registerField('password', {
+                      required: 'Le mot de passe est requis'
+                    })}
                   />
+                  <Form.Control.Feedback type="invalid">
+                    {errors.password?.message}
+                  </Form.Control.Feedback>
                 </Form.Group>
 
                 <Button variant="primary" type="submit" className="w-100 mt-3">
                   Se Connecter
                 </Button>
               </Form>
-              
+
               <div className="text-center mt-3">
                 <p>
-                  Pas encore de compte? <Link to="/register">S'inscrire</Link>
+                  Pas encore de compte ? <Link to="/register">S'inscrire</Link>
                 </p>
               </div>
             </Card.Body>
