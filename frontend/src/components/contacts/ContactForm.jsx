@@ -29,7 +29,7 @@ const ContactForm = () => {
 
   useEffect(() => {
     if (current !== null) {
-      // S'assurer que current a toujours une propriété address avec une structure complète
+    
       const safeContact = {
         ...current,
         address: current.address || {

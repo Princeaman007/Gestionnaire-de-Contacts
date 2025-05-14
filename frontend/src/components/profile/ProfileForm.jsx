@@ -44,7 +44,6 @@ const ProfileForm = () => {
         if (file) {
             setFormData({ ...formData, avatar: file });
 
-            // Créer une URL pour la prévisualisation
             const fileReader = new FileReader();
             fileReader.onload = () => {
                 setPreviewUrl(fileReader.result);
