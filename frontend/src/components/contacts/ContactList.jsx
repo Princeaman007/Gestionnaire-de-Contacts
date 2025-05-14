@@ -15,7 +15,7 @@ const ContactList = () => {
   useEffect(() => {
     getContacts();
     
-  }, []);
+  }, [getContacts]);
 
   if (loading) {
     return <Spinner />;
