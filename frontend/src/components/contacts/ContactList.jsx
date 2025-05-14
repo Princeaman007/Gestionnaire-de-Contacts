@@ -14,8 +14,8 @@ const ContactList = () => {
 
   useEffect(() => {
     getContacts();
-    // eslint-disable-next-line
-  }, []);
+    
+  }, [getContacts]);
 
   if (loading) {
     return <Spinner />;

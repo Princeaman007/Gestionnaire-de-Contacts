@@ -8,7 +8,6 @@ import setAuthToken from '../../utils/setAuthToken';
 const AuthState = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
-  // Charger l'utilisateur
   const loadUser = async () => {
     if (localStorage.token) {
       setAuthToken(localStorage.token);
@@ -97,7 +96,7 @@ const AuthState = ({ children }) => {
     }
   };
 
-  // Effacer les erreurs
+
   const clearErrors = () => dispatch({ type: 'CLEAR_ERRORS' });
 
   // Charger l'utilisateur au démarrage si un token existe

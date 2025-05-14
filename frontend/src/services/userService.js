@@ -2,11 +2,11 @@ import api from '../utils/api';
 
 // Mettre à jour le profil
 export const updateProfile = async (userData) => {
-  // Si userData contient un avatar (fichier), utilisons FormData
+ 
   if (userData.avatar instanceof File) {
     const formData = new FormData();
     
-    // Ajouter les champs de base
+   
     Object.keys(userData).forEach(key => {
       if (key === 'avatar') {
         formData.append('avatar', userData.avatar);
@@ -26,7 +26,7 @@ export const updateProfile = async (userData) => {
       throw error.response.data;
     }
   } else {
-    // Pas de fichier, utiliser JSON standard
+ 
     try {
       const response = await api.put('/users/profile', userData);
       return response.data;
@@ -36,7 +36,7 @@ export const updateProfile = async (userData) => {
   }
 };
 
-// Mettre à jour le mot de passe
+
 export const updatePassword = async (passwordData) => {
   try {
     const response = await api.put('/users/password', passwordData);
@@ -56,7 +56,7 @@ export const getUsers = async () => {
   }
 };
 
-// Obtenir un utilisateur spécifique (admin)
+
 export const getUser = async (id) => {
   try {
     const response = await api.get(`/users/${id}`);
@@ -68,11 +68,11 @@ export const getUser = async (id) => {
 
 // Mettre à jour un utilisateur (admin)
 export const updateUser = async (id, userData) => {
-  // Si userData contient un avatar (fichier), utilisons FormData
+  
   if (userData.avatar instanceof File) {
     const formData = new FormData();
     
-    // Ajouter les champs de base
+    
     Object.keys(userData).forEach(key => {
       if (key === 'avatar') {
         formData.append('avatar', userData.avatar);
@@ -92,7 +92,7 @@ export const updateUser = async (id, userData) => {
       throw error.response.data;
     }
   } else {
-    // Pas de fichier, utiliser JSON standard
+  
     try {
       const response = await api.put(`/users/${id}`, userData);
       return response.data;
