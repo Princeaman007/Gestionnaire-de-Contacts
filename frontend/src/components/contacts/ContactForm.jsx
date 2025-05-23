@@ -15,28 +15,26 @@ const ContactForm = () => {
   const [showAddressFields, setShowAddressFields] = useState(false);
 
   const {
-  register,
-  handleSubmit,
-  reset,
-  formState: { errors }
-} = useForm({
-  defaultValues: {
-    name: '',
-    email: '',
-    phone: '',
-    type: 'personnel',
-    notes: '',
-    'address.street': '',
-    'address.city': '',
-    'address.zipCode': '',
-    'address.country': ''
-  }
-});
-
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors }
+  } = useForm({
+    defaultValues: {
+      name: '',
+      email: '',
+      phone: '',
+      type: 'personnel',
+      notes: '',
+      'address.street': '',
+      'address.city': '',
+      'address.zipCode': '',
+      'address.country': ''
+    }
+  });
 
   useEffect(() => {
     if (current) {
-      
       const flatAddress = current.address || {};
       reset({
         name: current.name || '',
@@ -55,7 +53,10 @@ const ContactForm = () => {
       }
 
       if (current.avatar) {
-        setPreviewUrl(`/uploads/${current.avatar}`);
+        // Utilisez l'URL complète pour afficher l'avatar correctement
+        setPreviewUrl(`http://localhost:5000/uploads/${current.avatar}`);
+      } else {
+        setPreviewUrl('');
       }
     } else {
       reset();
@@ -77,38 +78,64 @@ const ContactForm = () => {
     }
   };
 
-  const onSubmit = async (data) => {
-    const contactData = {
-      ...data,
-      avatar: avatarFile,
-      address: {
-        street: data['address.street'],
-        city: data['address.city'],
-        zipCode: data['address.zipCode'],
-        country: data['address.country']
-      }
-    };
-
+ const onSubmit = async (data) => {
+  try {
+    // Vérifier les champs obligatoires
     if (!data.name || !data.email || !data.phone) {
       setAlertMsg('Veuillez remplir les champs obligatoires');
       return;
     }
 
-    try {
-      if (current === null) {
-        await addContact(contactData);
-      } else {
-        await updateContact({ ...current, ...contactData });
+    // Construire les données du contact
+    const contactData = {
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      type: data.type,
+      notes: data.notes,
+      address: {
+        street: data['address.street'] || '',
+        city: data['address.city'] || '',
+        zipCode: data['address.zipCode'] || '',
+        country: data['address.country'] || ''
       }
-      clearCurrent();
-      reset();
-      setAvatarFile(null);
-      setPreviewUrl('');
-      setShowAddressFields(false);
-    } catch (err) {
-      setAlertMsg(err.message || "Erreur lors de l'enregistrement du contact");
+    };
+
+    // Ajouter l'avatar seulement s'il y a un nouveau fichier
+    if (avatarFile) {
+      contactData.avatar = avatarFile;
     }
-  };
+
+    console.log('Données à envoyer:', contactData);
+
+    if (current === null) {
+      // Création d'un nouveau contact
+      await addContact(contactData);
+      console.log('Contact ajouté avec succès');
+    } else {
+      // Vérifier que l'ID est présent
+      if (!current._id) {
+        throw new Error("ID de contact manquant, impossible de mettre à jour");
+      }
+      
+      // Mise à jour d'un contact existant
+      console.log('Mise à jour du contact avec ID:', current._id);
+      await updateContact(current._id, contactData);
+      console.log('Contact mis à jour avec succès');
+    }
+
+    // Réinitialiser le formulaire et les états
+    clearCurrent();
+    reset();
+    setAvatarFile(null);
+    setPreviewUrl('');
+    setShowAddressFields(false);
+    setAlertMsg(''); // Effacer les messages d'erreur
+  } catch (err) {
+    console.error('Erreur détaillée:', err);
+    setAlertMsg(err.message || "Erreur lors de l'enregistrement du contact");
+  }
+};
 
   return (
     <Card className="mb-4 shadow-sm">
@@ -185,7 +212,13 @@ const ContactForm = () => {
                     className="img-fluid rounded-circle"
                     style={{ width: '150px', height: '150px', objectFit: 'cover' }}
                     onError={(e) => {
-                      e.target.src = 'https://via.placeholder.com/150';
+                      console.error("Erreur de chargement de l'image d'aperçu");
+                      e.target.onerror = null; // Éviter les boucles infinies
+                      // Utiliser une icône FontAwesome comme fallback
+                      e.target.style.display = 'none';
+                      const iconContainer = document.createElement('div');
+                      iconContainer.innerHTML = '<i class="fas fa-user-circle fa-5x text-secondary"></i>';
+                      e.target.parentNode.appendChild(iconContainer);
                     }}
                   />
                 </div>
@@ -214,7 +247,6 @@ const ContactForm = () => {
             </div>
           </Form.Group>
 
-          
           <div className="mb-3">
             <Button
               variant="outline-secondary"

@@ -103,11 +103,30 @@ export const updateUser = async (id, userData) => {
 };
 
 // Supprimer un utilisateur (admin)
+// userService.js - fonction de suppression d'utilisateur améliorée
+
 export const deleteUser = async (id) => {
   try {
+    // Vérifier que l'ID est valide
+    if (!id) {
+      console.error("ID d'utilisateur manquant pour la suppression");
+      throw new Error("ID d'utilisateur manquant");
+    }
+    
+    console.log(`Tentative de suppression de l'utilisateur avec ID: ${id}`);
+    
     const response = await api.delete(`/users/${id}`);
+    console.log(`Utilisateur ${id} supprimé avec succès:`, response.data);
     return response.data;
   } catch (error) {
-    throw error.response.data;
+    console.error(`Erreur lors de la suppression de l'utilisateur ${id}:`, error);
+    
+    // Extraire le message d'erreur de la réponse si disponible
+    if (error.response && error.response.data) {
+      console.error("Détails de l'erreur:", error.response.data);
+      throw error.response.data;
+    } else {
+      throw new Error(error.message || "Erreur lors de la suppression de l'utilisateur");
+    }
   }
 };

@@ -17,6 +17,7 @@ const UserList = ({ onEditUser }) => {
       setUsers(res.data);
       setError(null);
     } catch (err) {
+      console.error("Erreur lors du chargement des utilisateurs:", err);
       setError(err.message || 'Erreur lors du chargement des utilisateurs');
     } finally {
       setLoading(false);
@@ -28,18 +29,31 @@ const UserList = ({ onEditUser }) => {
   }, []);
   
   const handleDeleteUser = async (id, name) => {
+    if (!id) {
+      setError("ID d'utilisateur manquant, impossible de supprimer");
+      return;
+    }
+    
     if (window.confirm(`Êtes-vous sûr de vouloir supprimer l'utilisateur ${name} ?`)) {
       try {
+        console.log(`Tentative de suppression de l'utilisateur: ${id}`);
+        setLoading(true);
+        
         await deleteUser(id);
+        
         setSuccessMsg(`L'utilisateur ${name} a été supprimé avec succès`);
-        loadUsers();
+        setError(null);
+        await loadUsers(); // Recharger la liste après suppression
       } catch (err) {
-        setError(err.message || 'Erreur lors de la suppression de l\'utilisateur');
+        console.error(`Erreur lors de la suppression de l'utilisateur ${id}:`, err);
+        setError(err.message || "Erreur lors de la suppression de l'utilisateur");
+      } finally {
+        setLoading(false);
       }
     }
   };
   
-  if (loading) {
+  if (loading && users.length === 0) {
     return (
       <div className="text-center my-5">
         <Spinner animation="border" variant="primary" />
@@ -59,6 +73,13 @@ const UserList = ({ onEditUser }) => {
         <Alert variant="success" onClose={() => setSuccessMsg('')} dismissible>
           {successMsg}
         </Alert>
+      )}
+      
+      {loading && (
+        <div className="text-center my-2">
+          <Spinner animation="border" size="sm" className="me-2" />
+          Chargement en cours...
+        </div>
       )}
       
       {users.length === 0 ? (
@@ -83,10 +104,19 @@ const UserList = ({ onEditUser }) => {
                 <td className="text-center">
                   {user.avatar ? (
                     <img
-                      src={`/uploads/${user.avatar}`}
+                      src={`http://localhost:5000/uploads/${user.avatar}`}
                       alt="Avatar"
                       className="rounded-circle"
                       style={{ width: '40px', height: '40px', objectFit: 'cover' }}
+                      onError={(e) => {
+                        console.error(`Erreur de chargement de l'avatar pour ${user.name}`);
+                        e.target.onerror = null; // Éviter les boucles infinies
+                        e.target.style.display = 'none';
+                        // Afficher l'icône par défaut
+                        const icon = document.createElement('span');
+                        icon.innerHTML = '<i class="fas fa-user"></i>';
+                        e.target.parentNode.appendChild(icon);
+                      }}
                     />
                   ) : (
                     <FontAwesomeIcon icon={faUser} size="lg" />
@@ -103,7 +133,11 @@ const UserList = ({ onEditUser }) => {
                     )}
                   </Badge>
                 </td>
-                <td>{new Date(user.createdAt).toLocaleDateString()}</td>
+                <td>
+                  {user.createdAt 
+                    ? new Date(user.createdAt).toLocaleDateString() 
+                    : 'Date inconnue'}
+                </td>
                 <td>
                   <Button
                     variant="outline-primary"
@@ -117,6 +151,7 @@ const UserList = ({ onEditUser }) => {
                     variant="outline-danger"
                     size="sm"
                     onClick={() => handleDeleteUser(user._id, user.name)}
+                    disabled={loading}
                   >
                     <FontAwesomeIcon icon={faTrash} className="me-1" /> Supprimer
                   </Button>

@@ -61,16 +61,22 @@ const ContactItem = ({ contact }) => {
                     {avatar && (
                         <Col md={3} className="text-center">
                             <img
-                                src={`http://localhost:5000/uploads/${avatar}`}
-                                alt="Avatar"
+                                src={`http://localhost:5000/uploads/${avatar}`} 
+                                alt={`Avatar de ${name}`}
                                 className="img-thumbnail rounded object-fit-cover"
                                 style={{ width: '100px', height: '100px', objectFit: 'cover', objectPosition: 'center' }}
                                 onError={(e) => {
                                     console.error("Erreur de chargement de l'image:", avatar);
-                                    e.target.src = 'https://via.placeholder.com/100'; 
+                                    e.target.onerror = null; // Éviter les boucles infinies
+                                    // Afficher l'icône FontAwesome par défaut
+                                    e.target.style.display = 'none';
+                                    
+                                    const iconContainer = document.createElement('div');
+                                    iconContainer.className = 'text-center';
+                                    iconContainer.innerHTML = '<i class="fas fa-user-circle fa-4x text-secondary"></i>';
+                                    e.target.parentNode.appendChild(iconContainer);
                                 }}
                             />
-
                         </Col>
                     )}
                 </Row>

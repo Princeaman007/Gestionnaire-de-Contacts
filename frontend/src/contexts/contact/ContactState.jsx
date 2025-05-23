@@ -71,22 +71,32 @@ const ContactState = ({ children }) => {
   };
 
   // Mettre à jour un contact
-  const updateContact = async (contact) => {
-    try {
-      const res = await contactService.updateContact(contact._id, contact);
-      dispatch({
-        type: 'UPDATE_CONTACT',
-        payload: res.data
-      });
-      return res.data;
-    } catch (err) {
-      dispatch({
-        type: 'CONTACT_ERROR',
-        payload: err.message
-      });
-      throw err;
+// Dans ContactState.js
+const updateContact = async (id, contact) => {
+  try {
+    console.log('ContactState - Mise à jour du contact - ID:', id);
+    console.log('ContactState - Mise à jour du contact - Data:', contact);
+    
+    // Vérifier que l'ID est valide
+    if (!id) {
+      throw new Error("ID de contact invalide ou manquant");
     }
-  };
+    
+    const res = await contactService.updateContact(id, contact);
+    dispatch({
+      type: 'UPDATE_CONTACT',
+      payload: res.data
+    });
+    return res.data;
+  } catch (err) {
+    console.error('ContactState - Erreur de mise à jour:', err);
+    dispatch({
+      type: 'CONTACT_ERROR',
+      payload: err.message || "Erreur lors de la mise à jour du contact"
+    });
+    throw err;
+  }
+};
 
   // Filtrer les contacts
   const filterContacts = (text) => {
