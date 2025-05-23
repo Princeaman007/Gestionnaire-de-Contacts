@@ -199,35 +199,93 @@ exports.updateUser = async (req, res) => {
 };
 
 
-exports.deleteUser = async (req, res) => {
+// Dans votre contrôleur utilisateur (userController.js)
+
+// Méthode incorrecte qui cause l'erreur
+exports.deleteUser = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.id);
-
+    
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'Utilisateur non trouvé'
+        message: `Utilisateur avec l'ID ${req.params.id} non trouvé`
       });
     }
-
-   
-    if (user.avatar) {
-      const avatarPath = path.join(__dirname, '../uploads', user.avatar);
-      if (fs.existsSync(avatarPath) && user.avatar !== 'default-avatar.png') {
-        fs.unlinkSync(avatarPath);
-      }
-    }
-
-    await user.remove();
-
+    
+    // Cette ligne cause l'erreur car user.remove n'existe plus dans les versions récentes de Mongoose
+    // await user.remove();
+    
+    // Utiliser l'une de ces méthodes à la place:
+    await User.deleteOne({ _id: req.params.id });
+    // OU
+    // await User.findByIdAndDelete(req.params.id);
+    
     res.status(200).json({
       success: true,
       data: {}
     });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Dans controllers/users.js
+
+/**
+ * @desc    Mettre à jour le mot de passe de l'utilisateur
+ * @route   PUT /api/users/password
+ * @access  Private
+ */
+exports.updatePassword = async (req, res) => {
+  try {
+    // Les données ont déjà été validées par le middleware validate(updatePasswordSchema)
+    const { currentPassword, newPassword, confirmNewPassword } = req.body;
+
+    // Récupérer l'utilisateur avec son mot de passe
+    const user = await User.findById(req.user.id).select('+password');
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'Utilisateur non trouvé'
+      });
+    }
+
+    // Vérifier si le mot de passe actuel est correct
+    const isMatch = await user.matchPassword(currentPassword);
+
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        error: 'Mot de passe actuel incorrect'
+      });
+    }
+
+    // Vérifier à nouveau que les mots de passe correspondent (la validation Joi l'a déjà fait mais par sécurité)
+    if (newPassword !== confirmNewPassword) {
+      return res.status(400).json({
+        success: false,
+        error: 'Les mots de passe ne correspondent pas'
+      });
+    }
+
+    // Mettre à jour le mot de passe
+    user.password = newPassword;
+    
+    // Sauvegarder l'utilisateur
+    await user.save();
+
+    // Répondre avec succès
+    res.status(200).json({
+      success: true,
+      message: 'Mot de passe mis à jour avec succès'
+    });
   } catch (error) {
+    console.error('Erreur lors de la mise à jour du mot de passe:', error);
     res.status(500).json({
       success: false,
-      message: error.message
+      error: error.message || 'Erreur lors de la mise à jour du mot de passe'
     });
   }
 };
