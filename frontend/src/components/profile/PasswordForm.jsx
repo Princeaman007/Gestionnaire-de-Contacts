@@ -16,95 +16,84 @@ const PasswordForm = () => {
   const {
     register,
     handleSubmit,
-    setError,
     reset,
     formState: { errors }
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      currentPassword: '',
+      newPassword: '',
+      confirmNewPassword: ''
+    }
+  });
 
   const onSubmit = async (data) => {
-  try {
-    const { currentPassword, newPassword, confirmPassword } = data;
-
-    // Vérifier que les mots de passe correspondent
-    if (newPassword !== confirmPassword) {
-      setError('confirmPassword', {
-        type: 'manual',
-        message: 'Les mots de passe ne correspondent pas'
-      });
+    try {
+      // Réinitialiser les messages
       setAlertMsg('');
       setSuccessMsg('');
-      return;
-    }
+      
+      // Vérifier les champs obligatoires
+      if (!data.currentPassword || !data.newPassword || !data.confirmNewPassword) {
+        setAlertMsg('Veuillez remplir tous les champs obligatoires');
+        return;
+      }
 
-    // Vérifier les exigences de complexité du mot de passe
-    if (newPassword.length < 6) {
-      setError('newPassword', {
-        type: 'manual',
-        message: 'Le mot de passe doit contenir au moins 6 caractères'
-      });
-      return;
-    }
+      // Vérifier que les mots de passe correspondent
+      if (data.newPassword !== data.confirmNewPassword) {
+        setAlertMsg('Les nouveaux mots de passe ne correspondent pas');
+        return;
+      }
 
-    // Démarrer le chargement
-    setLoading(true);
-    console.log('Tentative de mise à jour du mot de passe...');
+      // Vérifier la longueur minimale
+      if (data.newPassword.length < 6) {
+        setAlertMsg('Le nouveau mot de passe doit contenir au moins 6 caractères');
+        return;
+      }
 
-    // Créer un objet de données propre
-    const passwordData = {
-      currentPassword: currentPassword.trim(),
-      newPassword: newPassword.trim()
-    };
-
-    console.log('Données envoyées (format):', {
-      currentPasswordLength: passwordData.currentPassword.length,
-      newPasswordLength: passwordData.newPassword.length
-    });
-
-    // Envoyer la requête de mise à jour
-    const result = await updatePassword(passwordData);
-    console.log('Résultat de la mise à jour:', result);
-
-    // Succès
-    setSuccessMsg('Mot de passe mis à jour avec succès');
-    setAlertMsg('');
-    reset(); // Réinitialiser le formulaire
-  } catch (err) {
-    console.error('Erreur lors de la mise à jour du mot de passe:', err);
-    
-    let errorMessage = 'Erreur lors de la mise à jour du mot de passe';
-    
-    // Extraction du message d'erreur selon le format
-    if (err && err.message) {
-      errorMessage = err.message;
-    } else if (err && err.error) {
-      errorMessage = err.error;
-    } else if (err && typeof err === 'string') {
-      errorMessage = err;
-    } else if (err && err.response && err.response.data) {
-      errorMessage = err.response.data.message || JSON.stringify(err.response.data);
-    } else if (typeof err === 'object') {
-      errorMessage = 'Erreur serveur: Veuillez vérifier votre mot de passe actuel';
-      console.log('Erreur détaillée:', JSON.stringify(err));
-    }
-    
-    // Gérer les erreurs spécifiques
-    if (errorMessage.toLowerCase().includes('incorrect') || 
-        errorMessage.toLowerCase().includes('invalid') || 
-        errorMessage.toLowerCase().includes('wrong')) {
-      setError('currentPassword', {
-        type: 'manual',
-        message: 'Mot de passe actuel incorrect'
-      });
-      setAlertMsg('Le mot de passe actuel est incorrect');
-    } else {
+      // Démarrer le chargement
+      setLoading(true);
+      
+      // Créer l'objet de données pour l'API
+      // IMPORTANT: Utilisez EXACTEMENT les noms de champs attendus par votre contrôleur backend
+      const passwordData = {
+        currentPassword: data.currentPassword,
+        newPassword: data.newPassword,
+        confirmNewPassword: data.confirmNewPassword
+      };
+      
+      console.log('Envoi de la demande de mise à jour du mot de passe');
+      
+      // Appeler le service d'API
+      await updatePassword(passwordData);
+      
+      // Succès
+      setSuccessMsg('Mot de passe mis à jour avec succès');
+      reset(); // Réinitialiser le formulaire
+    } catch (err) {
+      console.error('Erreur lors de la mise à jour du mot de passe:', err);
+      
+      // Déterminer le message d'erreur à afficher
+      let errorMessage = 'Erreur lors de la mise à jour du mot de passe';
+      
+      if (typeof err === 'string') {
+        errorMessage = err;
+      } else if (err?.message) {
+        errorMessage = err.message;
+      } else if (err?.error) {
+        errorMessage = err.error;
+      } else if (err?.response?.data?.error) {
+        errorMessage = err.response.data.error;
+      } else if (err?.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      }
+      
+      // Afficher le message d'erreur
       setAlertMsg(errorMessage);
+    } finally {
+      setLoading(false);
     }
-    
-    setSuccessMsg('');
-  } finally {
-    setLoading(false);
-  }
-};
+  };
+
   return (
     <Card className="shadow-sm">
       <Card.Body>
@@ -168,13 +157,13 @@ const PasswordForm = () => {
           </Form.Group>
 
           {/* Confirmation mot de passe */}
-          <Form.Group className="mb-3" controlId="formConfirmPassword">
+          <Form.Group className="mb-3" controlId="formConfirmNewPassword">
             <Form.Label>Confirmer le nouveau mot de passe*</Form.Label>
             <Form.Control
               type="password"
               placeholder="Confirmez votre nouveau mot de passe"
-              isInvalid={!!errors.confirmPassword}
-              {...register('confirmPassword', {
+              isInvalid={!!errors.confirmNewPassword}
+              {...register('confirmNewPassword', {
                 required: 'Veuillez confirmer le mot de passe',
                 minLength: {
                   value: 6,
@@ -184,7 +173,7 @@ const PasswordForm = () => {
               disabled={loading}
             />
             <Form.Control.Feedback type="invalid">
-              {errors.confirmPassword?.message}
+              {errors.confirmNewPassword?.message}
             </Form.Control.Feedback>
           </Form.Group>
 
