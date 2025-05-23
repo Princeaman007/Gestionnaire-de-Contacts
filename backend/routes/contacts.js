@@ -9,6 +9,7 @@ const {
 const { protect } = require('../middleware/auth');
 const upload = require('../middleware/upload');
 const validate = require('../middleware/validate');
+const attachUser = require('../middleware/attachUser');
 const { createContactSchema, updateContactSchema, idParamSchema } = require('../validators/contactValidator');
 
 const router = express.Router();
@@ -17,11 +18,13 @@ router
   .route('/')
   .get(protect, getContacts)
   .post(
-    protect, 
-    upload.single('avatar'), 
-    validate(createContactSchema), 
+    protect,
+    upload.single('avatar'),
+    attachUser, // <-- insère ici, avant validate
+    validate(createContactSchema),
     createContact
   );
+  
 
 router
   .route('/:id')

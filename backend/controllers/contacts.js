@@ -65,13 +65,32 @@ exports.getContact = async (req, res) => {
 
 exports.createContact = async (req, res) => {
   try {
-   
+    console.log("=== DEBUG CRÉATION CONTACT ===");
+    console.log("Fichier reçu:", req.file);
+    console.log("Body brut reçu:", req.body);
+
+    // Reconstruction manuelle de l'adresse si FormData est utilisé
+    const address = {
+      street: req.body['address[street]'],
+      city: req.body['address[city]'],
+      zipCode: req.body['address[zipCode]'],
+      country: req.body['address[country]']
+    };
+
+    req.body.address = {
+  street: '123 rue des Lilas',
+  city: 'Paris',
+  zipCode: '75000',
+  country: 'France'
+}
+
     req.body.user = req.user.id;
-    
- 
+
     if (req.file) {
       req.body.avatar = req.file.filename;
     }
+
+    console.log("Contact à enregistrer:", req.body);
 
     const contact = await Contact.create(req.body);
 
@@ -80,12 +99,14 @@ exports.createContact = async (req, res) => {
       data: contact
     });
   } catch (error) {
+    console.error("Erreur création contact:", error);
     res.status(500).json({
       success: false,
       message: error.message
     });
   }
 };
+
 
 
 exports.updateContact = async (req, res) => {
