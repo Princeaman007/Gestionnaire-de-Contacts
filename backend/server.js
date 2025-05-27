@@ -14,6 +14,8 @@ const contactRoutes = require('./routes/contacts');
 const userRoutes = require('./routes/users');
 
 const app = express();
+app.use(cookieParser());
+app.use(express.json());
 
 // Configuration CORS
 // app.use(cors({
@@ -24,14 +26,16 @@ const app = express();
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
-  'https://gestionnaire-de-contacts-1.onrender.com' 
+  'https://gestionnaire-de-contacts-1.onrender.com'
 ];
 
 app.use(cors({
   origin: function (origin, callback) {
+    // autorise les requêtes sans origin (comme Postman ou certains navigateurs)
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
+      console.log(`❌ Origin bloquée par CORS: ${origin}`);
       callback(new Error('CORS not allowed'));
     }
   },
@@ -39,7 +43,8 @@ app.use(cors({
 }));
 
 
-app.use(express.json());
+
+
 
 // Configuration spécifique pour le dossier uploads avec CORP (Cross-Origin Resource Policy)
 app.use('/uploads', (req, res, next) => {
