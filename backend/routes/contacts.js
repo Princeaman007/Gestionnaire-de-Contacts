@@ -20,7 +20,7 @@ router
   .post(
     protect,
     upload.single('avatar'),
-    attachUser, // <-- insère ici, avant validate
+    attachUser, 
     validate(createContactSchema),
     createContact
   );
@@ -36,7 +36,7 @@ router
   .put(
     protect, 
     upload.single('avatar'), 
-    validate(updateContactSchema),  // Utilise le schéma pour mise à jour
+    validate(updateContactSchema),  
     validate(idParamSchema, 'params'), 
     updateContact
   )

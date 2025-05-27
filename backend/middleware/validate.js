@@ -1,11 +1,11 @@
-// middleware/validate.js
+
 const ErrorResponse = require('../utils/errorResponse');
 
 /**
- * Middleware de validation avec Joi
- * @param {Object} schema - Schéma Joi pour la validation
- * @param {string} source - Source des données à valider ('body', 'query', 'params')
- * @returns {Function} Middleware Express
+
+ * @param {Object} schema - 
+ * @param {string} source 
+ * @returns {Function} 
  */
 const validate = (schema, source = 'body') => (req, res, next) => {
   const data = req[source];

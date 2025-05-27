@@ -55,7 +55,7 @@ const Login = () => {
               )}
 
               <Form onSubmit={handleSubmit(onSubmit)}>
-                {/* Email */}
+                
                 <Form.Group className="mb-3" controlId="formEmail">
                   <Form.Label>Email</Form.Label>
                   <Form.Control
@@ -75,7 +75,7 @@ const Login = () => {
                   </Form.Control.Feedback>
                 </Form.Group>
 
-                {/* Mot de passe */}
+                
                 <Form.Group className="mb-3" controlId="formPassword">
                   <Form.Label>Mot de passe</Form.Label>
                   <Form.Control

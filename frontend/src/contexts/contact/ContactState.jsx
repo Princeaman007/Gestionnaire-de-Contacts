@@ -6,7 +6,7 @@ import * as contactService from '../../services/contactService';
 const ContactState = ({ children }) => {
   const [state, dispatch] = useReducer(contactReducer, initialState);
 
-  // Obtenir tous les contacts
+ 
   const getContacts = async () => {
     try {
       const res = await contactService.getContacts();
@@ -22,7 +22,7 @@ const ContactState = ({ children }) => {
     }
   };
 
-  // Ajouter un contact
+ 
   const addContact = async (contact) => {
     try {
       const res = await contactService.createContact(contact);
@@ -40,7 +40,7 @@ const ContactState = ({ children }) => {
     }
   };
 
-  // Supprimer un contact
+ 
   const deleteContact = async (id) => {
     try {
       await contactService.deleteContact(id);
@@ -57,7 +57,7 @@ const ContactState = ({ children }) => {
     }
   };
 
-  // Définir le contact courant
+  
   const setCurrent = (contact) => {
     dispatch({
       type: 'SET_CURRENT',
@@ -65,19 +65,18 @@ const ContactState = ({ children }) => {
     });
   };
 
-  // Effacer le contact courant
+ 
   const clearCurrent = () => {
     dispatch({ type: 'CLEAR_CURRENT' });
   };
 
-  // Mettre à jour un contact
-// Dans ContactState.js
+
 const updateContact = async (id, contact) => {
   try {
     console.log('ContactState - Mise à jour du contact - ID:', id);
     console.log('ContactState - Mise à jour du contact - Data:', contact);
     
-    // Vérifier que l'ID est valide
+    
     if (!id) {
       throw new Error("ID de contact invalide ou manquant");
     }
@@ -98,7 +97,7 @@ const updateContact = async (id, contact) => {
   }
 };
 
-  // Filtrer les contacts
+ 
   const filterContacts = (text) => {
     dispatch({
       type: 'FILTER_CONTACTS',
@@ -106,17 +105,17 @@ const updateContact = async (id, contact) => {
     });
   };
 
-  // Effacer le filtre
+
   const clearFilter = () => {
     dispatch({ type: 'CLEAR_FILTER' });
   };
 
-  // Effacer les contacts (à la déconnexion)
+  
   const clearContacts = () => {
     dispatch({ type: 'CLEAR_CONTACTS' });
   };
 
-  // Effacer les erreurs
+  
   const clearErrors = () => dispatch({ type: 'CLEAR_ERRORS' });
 
   return (

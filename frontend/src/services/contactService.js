@@ -37,7 +37,7 @@ export const createContact = async (contactData) => {
         if (key === 'avatar') {
           formData.append('avatar', contactData.avatar);
         } else if (key === 'address' && contactData.address) {
-          // Gérer l'objet address
+        
           Object.keys(contactData.address).forEach(addrKey => {
             if (contactData.address[addrKey]) {
               formData.append(`address[${addrKey}]`, contactData.address[addrKey]);
@@ -66,7 +66,7 @@ export const createContact = async (contactData) => {
 
 // Mettre à jour un contact
 export const updateContact = async (id, contactData) => {
-  // Vérifier que l'ID est défini
+ 
   if (!id) {
     console.error("ID de contact manquant pour la mise à jour");
     throw new Error("ID de contact manquant");
@@ -83,7 +83,7 @@ export const updateContact = async (id, contactData) => {
         if (key === 'avatar') {
           formData.append('avatar', contactData.avatar);
         } else if (key === 'address' && contactData.address) {
-          // Vérifier que address est un objet valide
+          
           if (typeof contactData.address === 'object' && contactData.address !== null) {
             Object.keys(contactData.address).forEach(addrKey => {
               if (contactData.address[addrKey]) {
@@ -109,7 +109,7 @@ export const updateContact = async (id, contactData) => {
       console.log("Réponse de mise à jour:", response.data);
       return response.data;
     } else {
-      // S'assurer que contactData est un objet valide
+     
       if (typeof contactData !== 'object' || contactData === null) {
         throw new Error("Données de contact invalides");
       }

@@ -28,33 +28,32 @@ const PasswordForm = () => {
 
   const onSubmit = async (data) => {
     try {
-      // Réinitialiser les messages
+      
       setAlertMsg('');
       setSuccessMsg('');
       
-      // Vérifier les champs obligatoires
+      
       if (!data.currentPassword || !data.newPassword || !data.confirmNewPassword) {
         setAlertMsg('Veuillez remplir tous les champs obligatoires');
         return;
       }
 
-      // Vérifier que les mots de passe correspondent
+      
       if (data.newPassword !== data.confirmNewPassword) {
         setAlertMsg('Les nouveaux mots de passe ne correspondent pas');
         return;
       }
 
-      // Vérifier la longueur minimale
+      
       if (data.newPassword.length < 6) {
         setAlertMsg('Le nouveau mot de passe doit contenir au moins 6 caractères');
         return;
       }
 
-      // Démarrer le chargement
+      
       setLoading(true);
       
-      // Créer l'objet de données pour l'API
-      // IMPORTANT: Utilisez EXACTEMENT les noms de champs attendus par votre contrôleur backend
+     
       const passwordData = {
         currentPassword: data.currentPassword,
         newPassword: data.newPassword,
@@ -63,16 +62,16 @@ const PasswordForm = () => {
       
       console.log('Envoi de la demande de mise à jour du mot de passe');
       
-      // Appeler le service d'API
+      
       await updatePassword(passwordData);
       
-      // Succès
+     
       setSuccessMsg('Mot de passe mis à jour avec succès');
-      reset(); // Réinitialiser le formulaire
+      reset(); 
     } catch (err) {
       console.error('Erreur lors de la mise à jour du mot de passe:', err);
       
-      // Déterminer le message d'erreur à afficher
+      
       let errorMessage = 'Erreur lors de la mise à jour du mot de passe';
       
       if (typeof err === 'string') {
@@ -87,7 +86,7 @@ const PasswordForm = () => {
         errorMessage = err.response.data.message;
       }
       
-      // Afficher le message d'erreur
+      
       setAlertMsg(errorMessage);
     } finally {
       setLoading(false);
@@ -115,7 +114,7 @@ const PasswordForm = () => {
         )}
 
         <Form onSubmit={handleSubmit(onSubmit)}>
-          {/* Mot de passe actuel */}
+         
           <Form.Group className="mb-3" controlId="formCurrentPassword">
             <Form.Label>Mot de passe actuel*</Form.Label>
             <Form.Control
@@ -132,7 +131,7 @@ const PasswordForm = () => {
             </Form.Control.Feedback>
           </Form.Group>
 
-          {/* Nouveau mot de passe */}
+          
           <Form.Group className="mb-3" controlId="formNewPassword">
             <Form.Label>Nouveau mot de passe*</Form.Label>
             <Form.Control
@@ -156,7 +155,7 @@ const PasswordForm = () => {
             </Form.Text>
           </Form.Group>
 
-          {/* Confirmation mot de passe */}
+         
           <Form.Group className="mb-3" controlId="formConfirmNewPassword">
             <Form.Label>Confirmer le nouveau mot de passe*</Form.Label>
             <Form.Control

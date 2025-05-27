@@ -43,7 +43,7 @@ const UserList = ({ onEditUser }) => {
         
         setSuccessMsg(`L'utilisateur ${name} a été supprimé avec succès`);
         setError(null);
-        await loadUsers(); // Recharger la liste après suppression
+        await loadUsers();
       } catch (err) {
         console.error(`Erreur lors de la suppression de l'utilisateur ${id}:`, err);
         setError(err.message || "Erreur lors de la suppression de l'utilisateur");
@@ -110,9 +110,9 @@ const UserList = ({ onEditUser }) => {
                       style={{ width: '40px', height: '40px', objectFit: 'cover' }}
                       onError={(e) => {
                         console.error(`Erreur de chargement de l'avatar pour ${user.name}`);
-                        e.target.onerror = null; // Éviter les boucles infinies
+                        e.target.onerror = null;
                         e.target.style.display = 'none';
-                        // Afficher l'icône par défaut
+                        
                         const icon = document.createElement('span');
                         icon.innerHTML = '<i class="fas fa-user"></i>';
                         e.target.parentNode.appendChild(icon);

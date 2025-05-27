@@ -27,7 +27,7 @@ const ProfileForm = () => {
     }
   });
 
-  // Remplir les valeurs initiales
+
   useEffect(() => {
     if (user) {
       reset({
@@ -35,7 +35,7 @@ const ProfileForm = () => {
         email: user.email || ''
       });
       
-      // Si l'utilisateur a un avatar, définir l'URL d'aperçu
+      
       if (user.avatar) {
         setPreviewUrl(`http://localhost:5000/uploads/${user.avatar}`);
       }
@@ -47,7 +47,7 @@ const ProfileForm = () => {
     }
   }, [user, error, reset]);
 
-  // Gérer l'upload de fichier
+ 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -63,20 +63,20 @@ const ProfileForm = () => {
 
   const onSubmit = async (data) => {
     try {
-      // Vérifier les champs obligatoires
+      
       if (!data.name || !data.email) {
         setAlertMsg('Veuillez remplir tous les champs obligatoires');
         setSuccessMsg('');
         return;
       }
 
-      // Préparation des données à envoyer
+     
       const formData = {
         name: data.name,
         email: data.email
       };
 
-      // Ajouter l'avatar seulement s'il y a un nouveau fichier
+      
       if (avatarFile) {
         formData.avatar = avatarFile;
       }
@@ -84,7 +84,7 @@ const ProfileForm = () => {
       setLoading(true);
       console.log('Envoi des données du profil:', formData);
       
-      // Mise à jour du profil
+      
       await updateProfile(formData);
       setSuccessMsg('Profil mis à jour avec succès');
       setAlertMsg('');
@@ -163,8 +163,8 @@ const ProfileForm = () => {
                     style={{ width: '150px', height: '150px', objectFit: 'cover' }}
                     onError={(e) => {
                       console.error("Erreur de chargement de l'image d'avatar");
-                      e.target.onerror = null; // Éviter les boucles infinies
-                      // Utiliser une icône FontAwesome comme fallback
+                      e.target.onerror = null; 
+                      
                       e.target.style.display = 'none';
                       const iconContainer = document.createElement('div');
                       iconContainer.innerHTML = '<i class="fas fa-user-circle fa-5x text-secondary"></i>';

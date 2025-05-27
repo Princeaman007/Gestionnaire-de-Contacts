@@ -24,7 +24,7 @@ const AuthState = ({ children }) => {
     }
   };
 
-  // Inscription
+ 
   const register = async (formData) => {
     try {
       const res = await authService.register(formData);
@@ -41,7 +41,7 @@ const AuthState = ({ children }) => {
     }
   };
 
-  // Connexion
+ 
   const login = async (formData) => {
     try {
       const res = await authService.login(formData);
@@ -58,13 +58,13 @@ const AuthState = ({ children }) => {
     }
   };
 
-  // Déconnexion
+ 
   const logout = () => {
     authService.logout();
     dispatch({ type: 'LOGOUT' });
   };
 
-  // Mettre à jour le profil
+  
   const updateProfile = async (userData) => {
     try {
       const res = await userService.updateProfile(userData);
@@ -82,7 +82,7 @@ const AuthState = ({ children }) => {
     }
   };
 
-  // Mettre à jour le mot de passe
+  
   const updatePassword = async (passwordData) => {
     try {
       await userService.updatePassword(passwordData);
@@ -99,7 +99,7 @@ const AuthState = ({ children }) => {
 
   const clearErrors = () => dispatch({ type: 'CLEAR_ERRORS' });
 
-  // Charger l'utilisateur au démarrage si un token existe
+  
   useEffect(() => {
     if (localStorage.token) {
       loadUser();

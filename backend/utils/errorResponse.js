@@ -1,12 +1,12 @@
 /**
- * Classe pour créer des réponses d'erreur personnalisées
- * @class ErrorResponse
+
+ * @class 
  * @extends Error
  */
 class ErrorResponse extends Error {
   /**
-   * @param {string} message - Le message d'erreur
-   * @param {number} statusCode - Le code HTTP de l'erreur
+   * @param {string} message -
+   * @param {number} statusCode - 
    */
   constructor(message, statusCode) {
     super(message);

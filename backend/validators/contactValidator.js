@@ -76,9 +76,9 @@ const updateContactSchema = Joi.object({
     country: Joi.string().allow('', null)
   }),
   notes: Joi.string().allow('', null)
-}).min(1); // Au moins un champ doit être fourni pour la mise à jour
+}).min(1); 
 
-// Schéma pour la validation des paramètres d'ID
+
 const idParamSchema = Joi.object({
   id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).required()
     .messages({

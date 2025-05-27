@@ -1,6 +1,6 @@
 const Joi = require('joi');
 
-// Schéma pour l'inscription d'un utilisateur
+
 const registerSchema = Joi.object({
   name: Joi.string().trim().required()
     .messages({
@@ -36,7 +36,7 @@ const registerSchema = Joi.object({
   avatar: Joi.string().default('default-avatar.png')
 });
 
-// Schéma pour la connexion
+
 const loginSchema = Joi.object({
   email: Joi.string().email().required()
     .messages({
@@ -53,7 +53,7 @@ const loginSchema = Joi.object({
     })
 });
 
-// Schéma pour la mise à jour d'un utilisateur
+
 const updateUserSchema = Joi.object({
   name: Joi.string().trim()
     .messages({
@@ -70,9 +70,9 @@ const updateUserSchema = Joi.object({
       'any.only': 'Le rôle doit être soit "user" soit "admin"'
     }),
   avatar: Joi.string()
-}).min(1); // Au moins un champ doit être fourni pour la mise à jour
+}).min(1); 
 
-// Schéma pour la mise à jour du mot de passe
+
 const updatePasswordSchema = Joi.object({
   currentPassword: Joi.string().required()
     .messages({
@@ -95,7 +95,7 @@ const updatePasswordSchema = Joi.object({
     })
 });
 
-// Schéma pour la validation des paramètres d'ID
+
 const userIdParamSchema = Joi.object({
   id: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).required()
     .messages({

@@ -199,9 +199,7 @@ exports.updateUser = async (req, res) => {
 };
 
 
-// Dans votre contrôleur utilisateur (userController.js)
 
-// Méthode incorrecte qui cause l'erreur
 exports.deleteUser = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.id);
@@ -213,13 +211,11 @@ exports.deleteUser = async (req, res, next) => {
       });
     }
     
-    // Cette ligne cause l'erreur car user.remove n'existe plus dans les versions récentes de Mongoose
-    // await user.remove();
     
-    // Utiliser l'une de ces méthodes à la place:
+    
+    
     await User.deleteOne({ _id: req.params.id });
-    // OU
-    // await User.findByIdAndDelete(req.params.id);
+    
     
     res.status(200).json({
       success: true,
@@ -230,19 +226,19 @@ exports.deleteUser = async (req, res, next) => {
   }
 };
 
-// Dans controllers/users.js
+
 
 /**
- * @desc    Mettre à jour le mot de passe de l'utilisateur
- * @route   PUT /api/users/password
- * @access  Private
+ * @desc    
+ * @route   
+ * @access 
  */
 exports.updatePassword = async (req, res) => {
   try {
-    // Les données ont déjà été validées par le middleware validate(updatePasswordSchema)
+ 
     const { currentPassword, newPassword, confirmNewPassword } = req.body;
 
-    // Récupérer l'utilisateur avec son mot de passe
+
     const user = await User.findById(req.user.id).select('+password');
 
     if (!user) {
@@ -252,7 +248,6 @@ exports.updatePassword = async (req, res) => {
       });
     }
 
-    // Vérifier si le mot de passe actuel est correct
     const isMatch = await user.matchPassword(currentPassword);
 
     if (!isMatch) {
@@ -262,7 +257,7 @@ exports.updatePassword = async (req, res) => {
       });
     }
 
-    // Vérifier à nouveau que les mots de passe correspondent (la validation Joi l'a déjà fait mais par sécurité)
+    
     if (newPassword !== confirmNewPassword) {
       return res.status(400).json({
         success: false,
@@ -270,13 +265,13 @@ exports.updatePassword = async (req, res) => {
       });
     }
 
-    // Mettre à jour le mot de passe
+   
     user.password = newPassword;
     
-    // Sauvegarder l'utilisateur
+   
     await user.save();
 
-    // Répondre avec succès
+   
     res.status(200).json({
       success: true,
       message: 'Mot de passe mis à jour avec succès'

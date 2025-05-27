@@ -18,7 +18,7 @@ const {
 
 const router = express.Router();
 
-// Routes pour le profil de l'utilisateur connecté
+
 router.put(
   '/profile', 
   protect, 
@@ -34,7 +34,7 @@ router.put(
   updatePassword
 );
 
-// Routes administratives pour gérer tous les utilisateurs
+
 router.route('/')
   .get(
     protect, 

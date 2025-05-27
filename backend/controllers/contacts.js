@@ -69,7 +69,7 @@ exports.createContact = async (req, res) => {
     console.log("Fichier reçu:", req.file);
     console.log("Body brut reçu:", req.body);
 
-    // Reconstruction manuelle de l'adresse si FormData est utilisé
+  
     const address = {
       street: req.body['address[street]'],
       city: req.body['address[city]'],
@@ -77,12 +77,7 @@ exports.createContact = async (req, res) => {
       country: req.body['address[country]']
     };
 
-    req.body.address = {
-  street: '123 rue des Lilas',
-  city: 'Paris',
-  zipCode: '75000',
-  country: 'France'
-}
+
 
     req.body.user = req.user.id;
 

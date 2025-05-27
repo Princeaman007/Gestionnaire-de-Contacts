@@ -102,12 +102,11 @@ export const updateUser = async (id, userData) => {
   }
 };
 
-// Supprimer un utilisateur (admin)
-// userService.js - fonction de suppression d'utilisateur améliorée
+
 
 export const deleteUser = async (id) => {
   try {
-    // Vérifier que l'ID est valide
+    
     if (!id) {
       console.error("ID d'utilisateur manquant pour la suppression");
       throw new Error("ID d'utilisateur manquant");
@@ -121,7 +120,7 @@ export const deleteUser = async (id) => {
   } catch (error) {
     console.error(`Erreur lors de la suppression de l'utilisateur ${id}:`, error);
     
-    // Extraire le message d'erreur de la réponse si disponible
+   
     if (error.response && error.response.data) {
       console.error("Détails de l'erreur:", error.response.data);
       throw error.response.data;

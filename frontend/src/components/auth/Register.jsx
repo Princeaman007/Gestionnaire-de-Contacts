@@ -62,7 +62,7 @@ const Register = () => {
               )}
 
               <Form onSubmit={handleSubmit(onSubmit)}>
-                {/* Nom */}
+               
                 <Form.Group className="mb-3" controlId="formName">
                   <Form.Label>Nom</Form.Label>
                   <Form.Control
@@ -78,7 +78,7 @@ const Register = () => {
                   </Form.Control.Feedback>
                 </Form.Group>
 
-                {/* Email */}
+                
                 <Form.Group className="mb-3" controlId="formEmail">
                   <Form.Label>Email</Form.Label>
                   <Form.Control
@@ -98,7 +98,7 @@ const Register = () => {
                   </Form.Control.Feedback>
                 </Form.Group>
 
-                {/* Mot de passe */}
+                
                 <Form.Group className="mb-3" controlId="formPassword">
                   <Form.Label>Mot de passe</Form.Label>
                   <Form.Control
@@ -118,7 +118,7 @@ const Register = () => {
                   </Form.Control.Feedback>
                 </Form.Group>
 
-                {/* Confirmation mot de passe */}
+                
                 <Form.Group className="mb-3" controlId="formPassword2">
                   <Form.Label>Confirmer le mot de passe</Form.Label>
                   <Form.Control

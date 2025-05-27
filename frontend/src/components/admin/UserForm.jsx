@@ -18,7 +18,7 @@ const UserForm = ({ user, onCancel, onSave }) => {
   const [alertMsg, setAlertMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
 
-  // Remplir les champs avec les données de l'utilisateur
+ 
   useEffect(() => {
     if (user) {
       reset({
@@ -28,7 +28,7 @@ const UserForm = ({ user, onCancel, onSave }) => {
       });
 
       if (user.avatar) {
-        // Utiliser l'URL complète pour l'avatar
+        
         setPreviewUrl(`http://localhost:5000/uploads/${user.avatar}`);
       } else {
         setPreviewUrl('');
@@ -51,43 +51,42 @@ const UserForm = ({ user, onCancel, onSave }) => {
 
   const onSubmit = async (data) => {
     try {
-      // Vérifier les champs obligatoires
+     
       if (!data.name || !data.email || !data.role) {
         setAlertMsg('Veuillez remplir tous les champs obligatoires');
         setSuccessMsg('');
         return;
       }
 
-      // Vérifier que l'utilisateur a un ID
+    
       if (!user || !user._id) {
         setAlertMsg("ID d'utilisateur manquant, impossible de mettre à jour");
         setSuccessMsg('');
         return;
       }
 
-      // Construire les données du formulaire
+      
       const formData = {
         name: data.name,
         email: data.email,
         role: data.role
       };
 
-      // Ajouter l'avatar seulement s'il y a un nouveau fichier
+      
       if (avatarFile) {
         formData.avatar = avatarFile;
       }
 
       console.log(`Mise à jour de l'utilisateur ${user._id} avec données:`, formData);
 
-      // Envoyer la requête de mise à jour
       const res = await updateUser(user._id, formData);
       console.log("Réponse de mise à jour:", res);
 
-      // Afficher le message de succès
+     
       setSuccessMsg("Utilisateur mis à jour avec succès");
       setAlertMsg('');
 
-      // Appeler la fonction de rappel si elle existe
+      
       if (onSave) onSave(res.data);
     } catch (err) {
       console.error("Erreur lors de la mise à jour de l'utilisateur:", err);
@@ -176,8 +175,8 @@ const UserForm = ({ user, onCancel, onSave }) => {
                     style={{ width: '150px', height: '150px', objectFit: 'cover' }}
                     onError={(e) => {
                       console.error("Erreur de chargement de l'image d'avatar");
-                      e.target.onerror = null; // Éviter les boucles infinies
-                      // Utiliser une icône FontAwesome comme fallback
+                      e.target.onerror = null; 
+                      
                       e.target.style.display = 'none';
                       const iconContainer = document.createElement('div');
                       iconContainer.innerHTML = '<i class="fas fa-user-circle fa-5x text-secondary"></i>';

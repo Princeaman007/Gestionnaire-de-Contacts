@@ -14,7 +14,7 @@ const ContactForm = () => {
   const [alertMsg, setAlertMsg] = useState('');
   const [showAddressFields, setShowAddressFields] = useState(false);
 
-  // Utiliser la structure d'objet imbriqué pour les champs d'adresse
+ 
   const {
     register,
     handleSubmit,
@@ -37,10 +37,10 @@ const ContactForm = () => {
     }
   });
 
-  // Remplir le formulaire avec les données du contact actuel
+ 
   useEffect(() => {
     if (current) {
-      // Définir les valeurs de base
+     
       reset({
         name: current.name || '',
         email: current.email || '',
@@ -49,37 +49,37 @@ const ContactForm = () => {
         notes: current.notes || '',
       });
 
-      // Définir les valeurs d'adresse si elles existent
+      
       const address = current.address || {};
       setValue('address.street', address.street || '');
       setValue('address.city', address.city || '');
       setValue('address.zipCode', address.zipCode || '');
       setValue('address.country', address.country || '');
 
-      // Afficher les champs d'adresse si au moins un champ a une valeur
+      
       if (address.street || address.city || address.zipCode || address.country) {
         setShowAddressFields(true);
       }
 
-      // Définir l'URL de prévisualisation de l'avatar
+      
       if (current.avatar) {
         setPreviewUrl(`http://localhost:5000/uploads/${current.avatar}`);
       } else {
         setPreviewUrl('');
       }
     } else {
-      // Réinitialiser le formulaire si aucun contact n'est sélectionné
+      
       reset();
       setPreviewUrl('');
     }
 
-    // Afficher les erreurs
+    
     if (error) {
       setAlertMsg(error);
     }
   }, [current, error, reset, setValue]);
 
-  // Gérer le changement de fichier d'avatar
+  
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -90,20 +90,19 @@ const ContactForm = () => {
     }
   };
 
-  // Soumettre le formulaire
+  
   const onSubmit = async (data) => {
     try {
-      // Vérifier les champs obligatoires
+      
       if (!data.name || !data.email || !data.phone) {
         setAlertMsg('Veuillez remplir les champs obligatoires');
         return;
       }
 
-      // Construire les données du contact
-      // Comme nous utilisons une structure imbriquée, nous pouvons simplement copier data
+      
       const contactData = { ...data };
 
-      // Ajouter l'avatar seulement s'il y a un nouveau fichier
+      
       if (avatarFile) {
         contactData.avatar = avatarFile;
       }
@@ -111,22 +110,22 @@ const ContactForm = () => {
       console.log('Données à envoyer:', contactData);
 
       if (current === null) {
-        // Création d'un nouveau contact
+        
         await addContact(contactData);
         console.log('Contact ajouté avec succès');
       } else {
-        // Vérifier que l'ID est présent
+        
         if (!current._id) {
           throw new Error("ID de contact manquant, impossible de mettre à jour");
         }
         
-        // Mise à jour d'un contact existant
+        
         console.log('Mise à jour du contact avec ID:', current._id);
         await updateContact(current._id, contactData);
         console.log('Contact mis à jour avec succès');
       }
 
-      // Réinitialiser le formulaire et les états
+      
       clearCurrent();
       reset();
       setAvatarFile(null);
@@ -156,7 +155,7 @@ const ContactForm = () => {
         <Form onSubmit={handleSubmit(onSubmit)}>
           <Row>
             <Col md={current?.avatar || previewUrl ? 9 : 12}>
-              {/* Nom */}
+             
               <Form.Group className="mb-3" controlId="formName">
                 <Form.Label>Nom*</Form.Label>
                 <Form.Control
@@ -170,7 +169,7 @@ const ContactForm = () => {
                 </Form.Control.Feedback>
               </Form.Group>
 
-              {/* Email */}
+             
               <Form.Group className="mb-3" controlId="formEmail">
                 <Form.Label>Email*</Form.Label>
                 <Form.Control
@@ -190,7 +189,7 @@ const ContactForm = () => {
                 </Form.Control.Feedback>
               </Form.Group>
 
-              {/* Téléphone */}
+             
               <Form.Group className="mb-3" controlId="formPhone">
                 <Form.Label>Téléphone*</Form.Label>
                 <Form.Control
@@ -227,7 +226,7 @@ const ContactForm = () => {
             )}
           </Row>
 
-          {/* Type */}
+         
           <Form.Group className="mb-3" controlId="formType">
             <Form.Label>Type de contact</Form.Label>
             <div>
@@ -259,7 +258,7 @@ const ContactForm = () => {
             </Button>
           </div>
 
-          {/* Champs d'adresse */}
+          
           {showAddressFields && (
             <div className="address-fields mb-3">
               <Row>
@@ -309,7 +308,7 @@ const ContactForm = () => {
             </div>
           )}
 
-          {/* Notes */}
+          
           <Form.Group className="mb-3" controlId="formNotes">
             <Form.Label>Notes</Form.Label>
             <Form.Control
@@ -320,7 +319,7 @@ const ContactForm = () => {
             />
           </Form.Group>
 
-          {/* Avatar */}
+         
           <Form.Group className="mb-3" controlId="formAvatar">
             <Form.Label>
               <FontAwesomeIcon icon={faUserCircle} className="me-1" />
@@ -332,7 +331,7 @@ const ContactForm = () => {
             </Form.Text>
           </Form.Group>
 
-          {/* Actions */}
+          
           <div className="d-flex justify-content-between">
             <Button variant="primary" type="submit">
               {current ? 'Mettre à jour' : 'Ajouter'}
