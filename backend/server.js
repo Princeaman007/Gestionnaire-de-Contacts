@@ -16,10 +16,28 @@ const userRoutes = require('./routes/users');
 const app = express();
 
 // Configuration CORS
+// app.use(cors({
+//   origin: ['http://localhost:3000', 'http://localhost:5173'], // Ajoutez ici les origines autorisées
+//   credentials: true
+// }));
+
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'https://gestionnaire-de-contacts-1.onrender.com' 
+];
+
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:5173'], // Ajoutez ici les origines autorisées
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS not allowed'));
+    }
+  },
   credentials: true
 }));
+
 
 app.use(express.json());
 
