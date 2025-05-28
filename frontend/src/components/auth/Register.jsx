@@ -8,40 +8,46 @@ import { useForm } from 'react-hook-form';
 
 const Register = () => {
   const authContext = useContext(AuthContext);
-  const { register, error, clearErrors, isAuthenticated } = authContext;
+  const { register, error, clearErrors } = authContext;
   const navigate = useNavigate();
 
- const {
-  register: registerField,
-  handleSubmit,
-  formState: { errors }
-} = useForm();
-
+  const {
+    register: registerField,
+    handleSubmit,
+    formState: { errors }
+  } = useForm();
 
   const [alertMsg, setAlertMsg] = useState('');
+  const [successfullyRegistered, setSuccessfullyRegistered] = useState(false);
 
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/');
+    if (successfullyRegistered) {
+      navigate('/login', { state: { registered: true } }); 
     }
 
     if (error) {
       setAlertMsg(error);
       clearErrors();
     }
-  }, [error, isAuthenticated, navigate, clearErrors]);
+  }, [successfullyRegistered, error, navigate, clearErrors]);
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     if (data.password !== data.password2) {
       setAlertMsg('Les mots de passe ne correspondent pas');
       return;
     }
 
-    register({
-      name: data.name,
-      email: data.email,
-      password: data.password
-    });
+    try {
+      await register({
+        name: data.name,
+        email: data.email,
+        password: data.password
+      });
+
+      setSuccessfullyRegistered(true); 
+    } catch {
+      setAlertMsg("Erreur lors de l'inscription");
+    }
   };
 
   return (
@@ -62,7 +68,6 @@ const Register = () => {
               )}
 
               <Form onSubmit={handleSubmit(onSubmit)}>
-               
                 <Form.Group className="mb-3" controlId="formName">
                   <Form.Label>Nom</Form.Label>
                   <Form.Control
@@ -78,7 +83,6 @@ const Register = () => {
                   </Form.Control.Feedback>
                 </Form.Group>
 
-                
                 <Form.Group className="mb-3" controlId="formEmail">
                   <Form.Label>Email</Form.Label>
                   <Form.Control
@@ -98,7 +102,6 @@ const Register = () => {
                   </Form.Control.Feedback>
                 </Form.Group>
 
-                
                 <Form.Group className="mb-3" controlId="formPassword">
                   <Form.Label>Mot de passe</Form.Label>
                   <Form.Control
@@ -118,7 +121,6 @@ const Register = () => {
                   </Form.Control.Feedback>
                 </Form.Group>
 
-                
                 <Form.Group className="mb-3" controlId="formPassword2">
                   <Form.Label>Confirmer le mot de passe</Form.Label>
                   <Form.Control
