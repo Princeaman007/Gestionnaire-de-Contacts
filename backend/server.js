@@ -7,7 +7,7 @@ const cookieParser = require('cookie-parser');
 
 dotenv.config();
 
-
+// Connexion à la base de données
 connectDB();
 
 // Routes
@@ -19,21 +19,21 @@ const app = express();
 app.use(cookieParser());
 app.use(express.json());
 
-// Configuration CORS
-// app.use(cors({
-//   origin: ['http://localhost:3000', 'http://localhost:5173'], // Ajoutez ici les origines autorisées
-//   credentials: true
-// }));
-
+// Configuration CORS améliorée
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
-  'https://gestionnaire-de-contacts-1.onrender.com'
-];
+  'https://gestionnaire-de-contacts-1.onrender.com',
+  process.env.FRONTEND_URL 
+].filter(Boolean); 
 
 app.use(cors({
   origin: function (origin, callback) {
-    // autorise les requêtes sans origin (comme Postman ou certains navigateurs)
+    
+    if (!origin && process.env.NODE_ENV === 'development') {
+      return callback(null, true);
+    }
+    
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -44,43 +44,72 @@ app.use(cors({
   credentials: true
 }));
 
-
-
-
-
-// Configuration spécifique pour le dossier uploads avec CORP (Cross-Origin Resource Policy)
+// Configuration pour servir les fichiers statiques (uploads)
 app.use('/uploads', (req, res, next) => {
   res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
   res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache 24h
   next();
 }, express.static(path.join(__dirname, 'uploads')));
 
+// Routes API
 app.use('/api/auth', authRoutes);
 app.use('/api/contacts', contactRoutes);
 app.use('/api/users', userRoutes);
 
-app.use((err, req, res, next) => {
-  res.status(500).json({
-    success: false,
-    error: err.message
+// Route de santé
+app.get('/health', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
   });
 });
 
+// Route par défaut
 app.get('/', (req, res) => {
-  res.send('Backend is up and running 🎉');
+  res.json({ 
+    message: 'Backend Gestionnaire de Contacts API', 
+    version: '1.0.0',
+    status: 'running 🎉' 
+  });
 });
 
-app.get('/health', (req, res) => {
-  res.send({ status: 'ok' });
+// Middleware de gestion d'erreurs
+app.use((err, req, res, next) => {
+  console.error('Erreur serveur:', err);
+  res.status(500).json({
+    success: false,
+    error: err.message || 'Erreur interne du serveur'
+  });
 });
 
+// Middleware pour les routes non trouvées
+app.use('*', (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: 'Route non trouvée'
+  });
+});
+
+// Création du dossier uploads s'il n'existe pas
 const fs = require('fs');
-if (!fs.existsSync('./uploads')) {
-  fs.mkdirSync('./uploads');
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+  console.log('📁 Dossier uploads créé');
+}
+
+
+const defaultAvatarPath = path.join(uploadsDir, 'default-avatar.png');
+if (!fs.existsSync(defaultAvatarPath)) {
+  console.log('⚠️  Avatar par défaut manquant:', defaultAvatarPath);
 }
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`Serveur démarré sur le port ${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Serveur démarré sur le port ${PORT}`);
+  console.log(`🌍 Environnement: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`📁 Dossier uploads: ${uploadsDir}`);
 });

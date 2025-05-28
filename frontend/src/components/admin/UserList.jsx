@@ -3,6 +3,7 @@ import { Table, Button, Badge, Alert, Spinner } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash, faUserShield, faUser } from '@fortawesome/free-solid-svg-icons';
 import { getUsers, deleteUser } from '../../services/userService';
+import { AvatarImage } from '../../utils/imageService';
 
 const UserList = ({ onEditUser }) => {
   const [users, setUsers] = useState([]);
@@ -103,19 +104,14 @@ const UserList = ({ onEditUser }) => {
               <tr key={user._id}>
                 <td className="text-center">
                   {user.avatar ? (
-                    <img
-                      src={`http://localhost:5000/uploads/${user.avatar}`}
+                    <AvatarImage
+                      src={user.avatar}
                       alt="Avatar"
                       className="rounded-circle"
-                      style={{ width: '40px', height: '40px', objectFit: 'cover' }}
+                      width={40}
+                      height={40}
                       onError={(e) => {
                         console.error(`Erreur de chargement de l'avatar pour ${user.name}`);
-                        e.target.onerror = null;
-                        e.target.style.display = 'none';
-                        
-                        const icon = document.createElement('span');
-                        icon.innerHTML = '<i class="fas fa-user"></i>';
-                        e.target.parentNode.appendChild(icon);
                       }}
                     />
                   ) : (

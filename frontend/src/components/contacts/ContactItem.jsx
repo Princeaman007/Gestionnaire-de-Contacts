@@ -6,6 +6,7 @@ import {
   faStickyNote, faMapMarkerAlt, faUserCircle
 } from '@fortawesome/free-solid-svg-icons';
 import ContactContext from '../../contexts/contact/ContactContext';
+import { AvatarImage } from '../../utils/imageService';
 
 const ContactItem = ({ contact }) => {
   const { deleteContact, setCurrent, clearCurrent } = useContext(ContactContext);
@@ -68,19 +69,15 @@ const ContactItem = ({ contact }) => {
 
           {avatar && (
             <Col md={3} className="text-center">
-              <img
-                src={`http://localhost:5000/uploads/${avatar}`}
+              <AvatarImage
+                src={avatar}
                 alt={`Avatar de ${name}`}
-                className="img-thumbnail rounded object-fit-cover"
-                style={{ width: '100px', height: '100px', objectFit: 'cover' }}
+                className="img-thumbnail rounded"
+                width={100}
+                height={100}
                 onError={(e) => {
                   console.error("❌ Erreur chargement avatar:", avatar);
-                  e.target.onerror = null;
-                  e.target.style.display = 'none';
-                  const iconContainer = document.createElement('div');
-                  iconContainer.className = 'text-center';
-                  iconContainer.innerHTML = '<i class="fas fa-user-circle fa-4x text-secondary"></i>';
-                  e.target.parentNode.appendChild(iconContainer);
+                  
                 }}
               />
             </Col>
