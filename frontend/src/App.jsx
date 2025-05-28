@@ -13,7 +13,8 @@ import PrivateRoute from './components/layout/PrivateRoute';
 import AdminRoute from './components/layout/AdminRoute';
 
 // Pages
-import Home from './pages/Home';
+import HomePublic from './pages/HomePublic';
+import HomePrivate from './pages/HomePrivate';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
@@ -32,14 +33,19 @@ const App = () => {
             <Header />
             <main className="flex-grow-1 py-4">
               <Routes>
+                {/* Page publique par défaut */}
+                <Route path="/" element={<HomePublic />} />
+
+                {/* Dashboard privé pour utilisateurs connectés */}
                 <Route
-                  path="/"
+                  path="/dashboard"
                   element={
                     <PrivateRoute>
-                      <Home />
+                      <HomePrivate />
                     </PrivateRoute>
                   }
                 />
+
                 <Route
                   path="/contact/:id"
                   element={

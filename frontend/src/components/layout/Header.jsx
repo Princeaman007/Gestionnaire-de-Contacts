@@ -57,7 +57,7 @@ const Header = () => {
       <Container>
         <Navbar.Brand as={Link} to="/">
           <FontAwesomeIcon icon={faAddressBook} className="me-2" />
-          Gestionnaire de Contacts
+          <strong>Princode Connect</strong>
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">

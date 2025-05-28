@@ -5,7 +5,7 @@ import ContactList from '../components/contacts/ContactList';
 import AuthContext from '../contexts/auth/AuthContext';
 import ContactContext from '../contexts/contact/ContactContext';
 
-const Home = () => {
+const HomePrivate = () => {
   const authContext = useContext(AuthContext);
   const contactContext = useContext(ContactContext);
   const { loadUser } = authContext;
@@ -35,4 +35,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default HomePrivate;
