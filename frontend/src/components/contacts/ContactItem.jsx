@@ -29,12 +29,28 @@ const ContactItem = ({ contact }) => {
       <Card.Body>
         <Row>
           <Col md={avatar ? 9 : 12}>
-            <div className="d-flex justify-content-between align-items-center mb-2">
-              <h4 className="text-primary mb-0">{name}</h4>
-              <Badge bg={type === 'professionnel' ? 'primary' : 'success'}>
-                {type.charAt(0).toUpperCase() + type.slice(1)}
-              </Badge>
-            </div>
+            <div className="d-flex justify-content-between align-items-start mb-3">
+  <h4 className="text-primary mb-0">{name}</h4>
+  <Badge
+    bg={type === 'professionnel' ? 'primary' : 'success'}
+    className="d-flex align-items-center justify-content-center py-1 px-3 ms-3 text-uppercase fw-semibold"
+    style={{
+      minWidth: '100px',
+      height: '32px',
+      fontSize: '0.75rem',
+      textAlign: 'center',
+      letterSpacing: '0.4px',
+      lineHeight: '1'
+    }}
+  >
+    {type.charAt(0).toUpperCase() + type.slice(1)}
+  </Badge>
+</div>
+
+
+
+
+
 
             <ul className="list-unstyled">
               <li className="mb-1">
