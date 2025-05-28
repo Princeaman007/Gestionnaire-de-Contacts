@@ -24,16 +24,16 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
   'https://gestionnaire-de-contacts-1.onrender.com',
-  process.env.FRONTEND_URL 
-].filter(Boolean); 
+  process.env.FRONTEND_URL
+].filter(Boolean);
 
 app.use(cors({
   origin: function (origin, callback) {
-    
+
     if (!origin && process.env.NODE_ENV === 'development') {
       return callback(null, true);
     }
-    
+
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -44,13 +44,8 @@ app.use(cors({
   credentials: true
 }));
 
-// Configuration pour servir les fichiers statiques (uploads)
-app.use('/uploads', (req, res, next) => {
-  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache 24h
-  next();
-}, express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 // Routes API
 app.use('/api/auth', authRoutes);
@@ -59,8 +54,8 @@ app.use('/api/users', userRoutes);
 
 // Route de santé
 app.get('/health', (req, res) => {
-  res.json({ 
-    status: 'ok', 
+  res.json({
+    status: 'ok',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development'
   });
@@ -68,10 +63,10 @@ app.get('/health', (req, res) => {
 
 // Route par défaut
 app.get('/', (req, res) => {
-  res.json({ 
-    message: 'Backend Gestionnaire de Contacts API', 
+  res.json({
+    message: 'Backend Gestionnaire de Contacts API',
     version: '1.0.0',
-    status: 'running 🎉' 
+    status: 'running 🎉'
   });
 });
 
