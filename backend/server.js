@@ -17,7 +17,7 @@ const app = express();
 
 // Configuration CORS
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:5173'], // Ajoutez ici les origines autorisées
+  origin: ['http://localhost:3000', 'http://localhost:5173','https://gestionnaire-de-contacts-1.onrender.com'], 
   credentials: true
 }));
 
