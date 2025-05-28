@@ -5,14 +5,12 @@ import setAuthToken from '../utils/setAuthToken';
 export const register = async (userData) => {
   try {
     const response = await api.post('/auth/register', userData);
-    if (response.data.token) {
-      setAuthToken(response.data.token);
-    }
-    return response.data;
+    return response.data; 
   } catch (error) {
     throw error.response.data;
   }
 };
+
 
 // Connexion
 export const login = async (userData) => {

@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Container, Form, Button, Card, Row, Col, Alert } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSignInAlt } from '@fortawesome/free-solid-svg-icons';
@@ -10,6 +10,7 @@ const Login = () => {
   const authContext = useContext(AuthContext);
   const { login, error, clearErrors, isAuthenticated } = authContext;
   const navigate = useNavigate();
+  const location = useLocation(); 
 
   const {
     register: registerField,
@@ -18,6 +19,8 @@ const Login = () => {
   } = useForm();
 
   const [alertMsg, setAlertMsg] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
+
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -29,6 +32,13 @@ const Login = () => {
       clearErrors();
     }
   }, [error, isAuthenticated, navigate, clearErrors]);
+
+  
+  useEffect(() => {
+    if (location.state?.registered) {
+      setSuccessMsg("✅ Inscription réussie. Vous pouvez maintenant vous connecter.");
+    }
+  }, [location]);
 
   const onSubmit = (data) => {
     login({
@@ -48,6 +58,12 @@ const Login = () => {
                 Connexion
               </h2>
 
+              {successMsg && (
+                <Alert variant="success" onClose={() => setSuccessMsg('')} dismissible>
+                  {successMsg}
+                </Alert>
+              )}
+
               {alertMsg && (
                 <Alert variant="danger" onClose={() => setAlertMsg('')} dismissible>
                   {alertMsg}
@@ -55,7 +71,6 @@ const Login = () => {
               )}
 
               <Form onSubmit={handleSubmit(onSubmit)}>
-                
                 <Form.Group className="mb-3" controlId="formEmail">
                   <Form.Label>Email</Form.Label>
                   <Form.Control
@@ -75,7 +90,6 @@ const Login = () => {
                   </Form.Control.Feedback>
                 </Form.Group>
 
-                
                 <Form.Group className="mb-3" controlId="formPassword">
                   <Form.Label>Mot de passe</Form.Label>
                   <Form.Control

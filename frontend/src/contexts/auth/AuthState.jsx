@@ -26,20 +26,23 @@ const AuthState = ({ children }) => {
 
  
   const register = async (formData) => {
-    try {
-      const res = await authService.register(formData);
-      dispatch({
-        type: 'REGISTER_SUCCESS',
-        payload: { token: res.token, user: res.user }
-      });
-      loadUser();
-    } catch (err) {
-      dispatch({
-        type: 'REGISTER_FAIL',
-        payload: err.message || 'Une erreur est survenue lors de l\'inscription'
-      });
-    }
-  };
+  try {
+    await authService.register(formData);
+
+    dispatch({
+      type: 'REGISTER_SUCCESS'
+      
+    });
+
+    
+  } catch (err) {
+    dispatch({
+      type: 'REGISTER_FAIL',
+      payload: err.message || 'Une erreur est survenue lors de l\'inscription'
+    });
+  }
+};
+
 
  
   const login = async (formData) => {
